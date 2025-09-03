@@ -1,12 +1,11 @@
 <?php
 
-namespace WpUtilService\Contracts;
+namespace WpUtilService\Traits;
 
-class EnqueueTranslation
+trait EnqueueTranslation
 {
     public function enqueueTranslation(): void
     {
         // Implementation goes here
     }
-}
 }

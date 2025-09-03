@@ -20,7 +20,8 @@
         "phpunit/phpunit": "^9.6",
         "helsingborg-stad/phpcs": "^0.3.5",
         "php-stubs/wordpress-stubs": "^6.6",
-        "johnpbloch/wordpress": "^6.6"
+        "johnpbloch/wordpress": "^6.6",
+        "helsingborg-stad/wpservice": "^2"
     },
     "scripts": {
         "test": "./vendor/bin/phpunit --testdox --no-coverage",
