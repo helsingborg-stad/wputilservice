@@ -35,5 +35,5 @@
             "johnpbloch/wordpress-core-installer": true
         }
     },
-    "version": "0.1.11"
+    "version": "0.1.13"
 }
