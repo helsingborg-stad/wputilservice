@@ -57,6 +57,16 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
+    public function testAndThrowsIfUsedBeforeWith() {
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+        $manager->setDistDirectory('/path/to/dist');
+
+        $this->expectException(\RuntimeException::class);
+        $manager->add('main.js', ['jquery'], '1.0.0', true)->and();
+    }
+
     public function testWithThrowsIfNoAssetAdded()
     {
         $manager = new EnqueueManager(

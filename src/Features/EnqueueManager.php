@@ -91,7 +91,7 @@ class EnqueueManager
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
-        $this->handleHasSeenWithFunction[$this->lastHandle] = true;
+        $this->handleHasSeenWithFunction[$this->lastHandle] = true; //Allow and chaining
         return new EnqueueAssetContext($this, $this->lastHandle);
     }
 
@@ -103,8 +103,8 @@ class EnqueueManager
      */
     public function and(): EnqueueAssetContext
     {
-        if ($this->handleHasSeenWithFunction[$this->lastHandle] ?? false) {
-            throw new \RuntimeException('Chaining and() is not allowed before with().');
+        if (!isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
+            throw new \RuntimeException('Chaining and() is not allowed before with(). Looking for: ' . $this->lastHandle . ' In dataset: ' . json_encode($this->handleHasSeenWithFunction));
         }
         return $this->with();
     }
