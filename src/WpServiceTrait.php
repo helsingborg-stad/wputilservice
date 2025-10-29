@@ -1,5 +1,7 @@
 <?php 
 
+namespace WpUtilService;
+
 use WpService\WpService;
 
 trait WpServiceTrait
