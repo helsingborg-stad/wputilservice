@@ -5,6 +5,7 @@ namespace WpUtilService\Traits;
 use WpUtilService\Config\EnqueueManagerConfigInterface;
 use WpUtilService\Features\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
+use WpUtilService\WpServiceTrait;
 
 trait Enqueue
 {
@@ -16,8 +17,14 @@ trait Enqueue
      * Example usage:
      * $wpUtilService->enqueue(['distFolder' => '/var/www/dist'])
      *     ->add('main.js', ['jquery'], '1.0.0', true)
-     *     ->addTranslation('main.js', 'my-textdomain')
-     *     ->add('secondary.js');
+     *         ->with()
+     *             ->translation('objectName', [
+     *                 'localization_a' => ['Test']
+     *             ])
+     *         ->and()
+     *             ->data([
+     *                 'id' => 1
+     *             ]);
      *
      * @param array $config Configuration options:
      *   - distFolder: string Path to asset distribution folder
@@ -27,17 +34,20 @@ trait Enqueue
      */
     public function enqueue(array $config = []): EnqueueManager
     {
-        // Default config values
-        $distDirectory = $config['distFolder'] ?? '/assets/dist/';
-        $manifestName = $config['manifestName'] ?? 'manifest.json';
-        $cacheBust = $config['cacheBust'] ?? true;
-
-        // Setup config object
+        //Config
         $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
-        $managerConfig->setDistDirectory($distDirectory)
-            ->setManifestName($manifestName)
-            ->setCacheBustState($cacheBust);
 
+        // Default config values
+        $distDirectory = $config['distFolder'] ?? null;
+        $manifestName  = $config['manifestName'] ?? null;
+        $cacheBust     = $config['cacheBust'] ?? null;
+
+        // Setup config object, if values are provided
+        $distDirectory !== null && $managerConfig->setDistDirectory($distDirectory);
+        $manifestName  !== null && $managerConfig->setManifestName($manifestName);
+        $cacheBust     !== null && $managerConfig->setCacheBustState($cacheBust);
+
+        // Setup cache bust manager, if enabled
         $cacheBustManager = null;
         if ($managerConfig->getIsCacheBustEnabled()) {
             $cacheBustManager = (new CacheBustManager($this->getWpService()))
@@ -45,6 +55,7 @@ trait Enqueue
                 ->setManifestName($managerConfig->getManifestName());
         }
 
+        //Return configured EnqueueManager
         return (new EnqueueManager(
             $this->getWpService(),
             $cacheBustManager
