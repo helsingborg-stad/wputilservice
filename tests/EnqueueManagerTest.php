@@ -18,17 +18,40 @@ class EnqueueManagerTest extends TestCase
     public function testFluentApiChaining()
     {
         //Setup deps
-        $wpService = $this->getWpService();
-        $manager = new EnqueueManager($wpService);
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
         $manager->setDistDirectory('/path/to/dist');
-        
+
         // Test chaining add and with()->translation
+        $result = $manager
+            ->add('main.js', ['jquery'], '1.0.0', true)
+              ->with()
+                ->translation([
+                  'localization_a' => ['Test']
+                ])
+              ->and()
+                ->data([
+                  'id' => 1
+                ]);
+
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testComplexFluentApiChaining() {
+
+        //Setup deps
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+        $manager->setDistDirectory('/path/to/dist');
+
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
             ->with()->translation(['localization_a' => ['Test']])
             ->add('second.js', [], '1.0.0', true)
             ->with()->data(['id' => 1])
-            ->with()->translation(['localization_b' => ['Test']])
+            ->and()->translation(['localization_b' => ['Test']])
             ->add('secondary.js');
 
         $this->assertInstanceOf(EnqueueManager::class, $result);

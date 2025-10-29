@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace WpUtilService\Features;
 
 use WpService\WpService;
+use WpUtilService\Contracts\Enqueue;
 
 /**
  * Manager for enqueuing assets with fluent API and context chaining.
@@ -15,6 +16,11 @@ class EnqueueManager
      * @var string|null Storage variable for the last added asset handle
      */
     private ?string $lastHandle = null;
+
+    /**
+     * @var array Storage for handles that have seen the with() function
+     */
+    private array $handleHasSeenWithFunction = [];
 
     /**
      * @var array Configuration options
@@ -85,8 +91,22 @@ class EnqueueManager
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
-
+        $this->handleHasSeenWithFunction[$this->lastHandle] = true;
         return new EnqueueAssetContext($this, $this->lastHandle);
+    }
+
+    /**
+     * This is a alias for with, enabling chaining to be
+     * done in a more natural language.
+     *
+     * @return EnqueueAssetContext
+     */
+    public function and(): EnqueueAssetContext
+    {
+        if ($this->handleHasSeenWithFunction[$this->lastHandle] ?? false) {
+            throw new \RuntimeException('Chaining and() is not allowed before with().');
+        }
+        return $this->with();
     }
 
     /**
