@@ -65,8 +65,9 @@ class EnqueueManager implements Enqueue
      */
     public function setDistDirectory(string $distDirectory): self
     {
-        self::$assetsDistPath = rtrim($distDirectory, '/') . '/';
+        self::$assetsDistPath       = rtrim($distDirectory, '/') . '/';
         $this->config['distFolder'] = self::$assetsDistPath;
+
         return $this;
     }
 
@@ -76,6 +77,13 @@ class EnqueueManager implements Enqueue
     public function add(string $src, array $deps = [], ?string $version = null, ?bool $module = null): self
     {
         $handle = pathinfo($src, PATHINFO_FILENAME);
+
+        // Ensure the handle includes a valid file extension
+        if (!str_ends_with($handle, '.css') && !str_ends_with($handle, '.js')) {
+            $extension = pathinfo($src, PATHINFO_EXTENSION);
+            $handle .= $extension ? ".{$extension}" : '';
+        }
+
         $this->addAsset($handle, $src, $deps, $module);
         $this->lastHandle = $handle;
         return $this;
@@ -181,18 +189,16 @@ class EnqueueManager implements Enqueue
      */
     private function getAssetTypeForHandle(string $handle): string
     {
-        // If the handle equals lastHandle and distFolder exists, try to infer by suffix.
-        if ($this->lastHandle === $handle && isset($this->config['distFolder'])) {
-            if (substr($handle, -4) === '.css' || substr((string) $handle, -4) === '.css') {
-                return 'css';
-            }
-            if (substr((string) $handle, -3) === '.js') {
-                return 'js';
-            }
+        // Directly check the suffix of the handle
+        if (str_ends_with($handle, '.css')) {
+            return 'css';
+        }
+        if (str_ends_with($handle, '.js')) {
+            return 'js';
         }
 
-        // Fallback: default to js (safer for translations/data)
-        return 'js';
+        // Throw an exception if the type cannot be determined
+        throw new \InvalidArgumentException("Cannot determine asset type for handle: {$handle}");
     }
 
     /**
@@ -236,7 +242,7 @@ class EnqueueManager implements Enqueue
             $this->getFileType($src, $handle)
         );
 
-        $module = $module ?? $this->isModule($src, $handle);
+        $module                     = $module ?? $this->isModule($src, $handle);
         $fullSrc = $this->getAssetUrl($src);
 
         $func['register']($handle, $fullSrc, $deps);
