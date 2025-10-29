@@ -47,8 +47,13 @@ $wpUtilService = new WpUtilService($wpService);
 ```php
 $wpUtilService
     ->enqueue(['distFolder' => '/var/www/dist'])
-    ->add('main.js', ['jquery'], '1.0.0', true)
-    ->addTranslation('main.js', 'my-textdomain')
+    ->add('main.js', ['jquery'], '1.0.0', true)->with()->translation(
+        [
+            'localization_a' => __('Test', 'testdomain')
+        ]
+    )->add('second.js', [], '1.0.0', true)->with()->data([
+            'id' => 1
+    ])->with()->translation(['localization_b' => __("Test")])
     ->add('secondary.js');
 ```
 
