@@ -1,6 +1,6 @@
 <?php
 
-use Wputilservice\Config\EnqueueManagerConfigInterface;
+use WpUtilService\Config\EnqueueManagerConfigInterface;
 use \WpUtilService\Features\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
 

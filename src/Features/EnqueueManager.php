@@ -153,7 +153,7 @@ class EnqueueManager
     private function getAssetUrl(string $src): string {
         return $this->wpService->getTemplateDirectoryUri() .
             self::$assetsDistPath .
-            CacheBust::name($src);
+            ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src);
     }
 
     /**
@@ -165,7 +165,7 @@ class EnqueueManager
     private function isModule(string $src, string $handle = ""): bool {
         $ext = $this->getFileType($src, $handle);
         if ($ext === 'js') {
-            $manifest = CacheBust::getManifest();
+            $manifest = $this->cacheBustManager ? $this->cacheBustManager->getManifest() : [];
             return isset($manifest[$src]);
         }
         return false;

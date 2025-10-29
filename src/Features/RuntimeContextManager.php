@@ -2,7 +2,7 @@
 
 namespace WpUtilService\Features;
 
-use WpServiceTrait;
+use WpUtilService\WpServiceTrait;
 
 enum RuntimeContextEnum: string
 {
@@ -17,39 +17,33 @@ class RuntimeContextManager
     use WpServiceTrait;
 
     /**
-     * This function detects what context that we are in, and returns the following enums.
+     * Detects the runtime context and returns the corresponding enum.
      *
-     * THEME,
-     * CHILDTHEME,
-     * MUPLUGIN,
-     * PLUGIN
-     *
-     * @return array<string>
+     * @return RuntimeContextEnum|null
      */
-    private function getRuntimeContext(): array
+    private function getRuntimeContext(): ?RuntimeContextEnum
     {
-        $contexts = [];
+        // Check for child theme first (more specific than theme)
+        if (is_child_theme() && strpos(__DIR__, get_stylesheet_directory()) !== false) {
+            return RuntimeContextEnum::CHILDTHEME;
+        }
 
         // Check for theme
         if (strpos(__DIR__, get_template_directory()) !== false) {
-            $contexts[] = 'THEME';
-        }
-
-        // Check for child theme
-        if (is_child_theme() && strpos(__DIR__, get_stylesheet_directory()) !== false) {
-            $contexts[] = 'CHILDTHEME';
+            return RuntimeContextEnum::THEME;
         }
 
         // Check for MU-plugin
         if (defined('WPMU_PLUGIN_DIR') && strpos(__DIR__, WPMU_PLUGIN_DIR) !== false) {
-            $contexts[] = 'MUPLUGIN';
+            return RuntimeContextEnum::MUPLUGIN;
         }
 
         // Check for normal plugin
         if (defined('WP_PLUGIN_DIR') && strpos(__DIR__, WP_PLUGIN_DIR) !== false) {
-            $contexts[] = 'PLUGIN';
+            return RuntimeContextEnum::PLUGIN;
         }
 
-        return $contexts;
+        // Nothing matched
+        return null;
     }
 }
