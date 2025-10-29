@@ -24,18 +24,24 @@ class EnqueueAssetContext
     public function __construct(EnqueueManager $manager, string $handle)
     {
         $this->manager = $manager;
-        $this->handle = $handle;
+        $this->handle  = $handle;
     }
 
     /**
      * Attach translation data to the asset.
      *
+     * @param string $objectName      The global object name for the translation.
      * @param array $localizationData Array of localization data, e.g. ['key' => __('value', 'domain')]
      * @return EnqueueManager Chainable manager
      */
-    public function translation(array $localizationData): EnqueueManager
+    public function translation(string $objectName, array $localizationData): EnqueueManager
     {
-        $this->manager->addTranslationToHandle($this->handle, $localizationData);
+        $this->manager->addTranslationToHandle(
+            $this->handle,
+            $objectName,
+            $localizationData
+        );
+
         return $this->manager;
     }
 

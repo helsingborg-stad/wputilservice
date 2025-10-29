@@ -116,7 +116,7 @@ class EnqueueManager
      * @param array $localizationData
      * @return void
      */
-    public function addTranslationToHandle(string $handle, array $localizationData): void
+    public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
     {
         $funcs = $this->getRegisterEnqeueFunctions('js');
 
@@ -153,10 +153,12 @@ class EnqueueManager
     public function addTranslation(string $src, string $textDomain): self
     {
         $handle = pathinfo($src, PATHINFO_FILENAME);
-        $funcs = $this->getRegisterEnqeueFunctions($this->getFileType($src, $handle));
+        $funcs  = $this->getRegisterEnqeueFunctions($this->getFileType($src, $handle));
 
         if (isset($funcs['localize'])) {
             $funcs['localize']($handle, $textDomain, []);
+        } else {
+            throw new \RuntimeException('Localization is not supported for this asset type.');
         }
 
         return $this;
@@ -229,7 +231,7 @@ class EnqueueManager
             return [
                 'register' => fn($handle, $src, $deps) =>
                     $this->wpService->wpRegisterScript($handle, $src, $deps, false, true),
-                'enqueue' => fn($handle) =>
+                'enqueue'  => fn($handle) =>
                     $this->wpService->wpEnqueueScript($handle),
                 'localize' => fn($handle, $objectName, $data) =>
                     $this->wpService->wpLocalizeScript($handle, $objectName, $data),
@@ -240,7 +242,7 @@ class EnqueueManager
             return [
                 'register' => fn($handle, $src, $deps) =>
                     $this->wpService->wpRegisterStyle($handle, $src, $deps, false),
-                'enqueue' => fn($handle) =>
+                'enqueue'  => fn($handle) =>
                     $this->wpService->wpEnqueueStyle($handle),
             ];
         }

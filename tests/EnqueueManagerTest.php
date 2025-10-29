@@ -27,7 +27,7 @@ class EnqueueManagerTest extends TestCase
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
               ->with()
-                ->translation([
+                ->translation('objectName', [
                   'localization_a' => ['Test']
                 ])
               ->and()
@@ -48,10 +48,16 @@ class EnqueueManagerTest extends TestCase
 
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
-            ->with()->translation(['localization_a' => ['Test']])
+              ->with()->translation('objectName', [
+                'localization_a' => ['Test']
+              ])
             ->add('second.js', [], '1.0.0', true)
-            ->with()->data(['id' => 1])
-            ->and()->translation(['localization_b' => ['Test']])
+              ->with()->data([
+                'id' => 1
+              ])
+              ->and()->translation('objectName', [
+                'localization_b' => ['Test']
+              ])
             ->add('secondary.js');
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
@@ -91,8 +97,42 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueAssetContext::class, $context);
 
         // Test that translation() returns the manager
-        $result = $context->translation(['key' => ['value']]);
+        $result = $context->translation('objectName', ['key' => ['value']]);
         $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testThatThrowsIfObjectNameIsNotUnique()
+    {
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+
+        $manager->add('main.js')->with()->translation('objectName', ['key' => ['value']]) ;
+        $this->expectException(\RuntimeException::class);
+        $manager->add('second.js')->with()->translation('objectName', ['key' => ['value']]);
+    }
+    
+
+    public function testThatThrowsIfTranslationIsAddedOnAssetWithoutAbility()
+    {
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+
+        $manager->add('main.css');
+        $this->expectException(\RuntimeException::class);
+        $manager->with()->translation('objectName', ['key' => ['value']]);
+    }
+
+    public function testThatThrowsIfDataIsAddedOnAssetWithoutAbility()
+    {
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+
+        $manager->add('main.css');
+        $this->expectException(\RuntimeException::class);
+        $manager->with()->data(['key' => 'value']);
     }
 
     /**
@@ -106,7 +146,8 @@ class EnqueueManagerTest extends TestCase
             'getTemplateDirectoryUri' => fn() => '/path/to/templates',
             'wpRegisterScript'        => fn($handle, $src, $deps, $inFooter, $module) => true,
             'wpLocalizeScript'        => fn($handle, $objectName, $l10n) => true,
-            'addFilter'               => fn($hook, $callback) => true
+            'addFilter'               => fn($hook, $callback) => true,
+            'wpRegisterStyle'         => fn($handle, $src, $deps, $version) => true
         ]);
     }
 }
