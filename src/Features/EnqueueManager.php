@@ -10,10 +10,15 @@ use WpUtilService\Contracts\Enqueue;
 /**
  * Manager for enqueuing assets with fluent API and context chaining.
  */
-class EnqueueManager
+class EnqueueManager implements Enqueue
 {
     /**
-     * @var string|null Storage variable for the last added asset handle
+     * @var array Configuration options
+     */
+    private array $config = [];
+
+    /**
+     * @var string|null Last added handle name
      */
     private ?string $lastHandle = null;
 
@@ -23,20 +28,17 @@ class EnqueueManager
     private array $handleHasSeenWithFunction = [];
 
     /**
-     * @var array Configuration options
+     * @var array Track used translation object names to enforce uniqueness
      */
-    private array $config = [];
+    private array $usedTranslationObjectNames = [];
 
     /**
-    private ?string $lastHandle = null;
-
-    /**
-     * @var string|null Storage variable for the dist path
+     * @var string|null Storage var for the dist path
      */
     private static ?string $assetsDistPath = null;
 
     /**
-     * Constructor for EnqueueManager.
+     * Constructor.
      *
      * @param WpService $wpService
      * @param CacheBustManager|null $cacheBustManager
@@ -51,10 +53,15 @@ class EnqueueManager
     }
 
     /**
-     * Set the dist directory and return the updated EnqueueManager instance.
-     *
-     * @param string $distDirectory The path to the distribution directory.
-     * @return self
+     * Get the instance of the EnqueueManager.
+     */
+    public function getEnqueueManager(): EnqueueManager
+    {
+        return $this;
+    }
+
+    /**
+     * Set the dist directory and return this instance (fluent).
      */
     public function setDistDirectory(string $distDirectory): self
     {
@@ -65,12 +72,6 @@ class EnqueueManager
 
     /**
      * Chainable method to add a script or style asset.
-     *
-     * @param string $src Asset source file name.
-     * @param array $deps Dependencies.
-     * @param string|null $version Asset version.
-     * @param bool|null $module JS module flag.
-     * @return self
      */
     public function add(string $src, array $deps = [], ?string $version = null, ?bool $module = null): self
     {
@@ -81,30 +82,32 @@ class EnqueueManager
     }
 
     /**
-     * Returns a context object for the last added asset,
-     * enabling .with()->translation() / .data() chaining.
+     * Returns a context object for the last added asset, enabling .with()->... chaining.
      *
-     * @return EnqueueAssetContext
+     * @throws \RuntimeException
      */
     public function with(): EnqueueAssetContext
     {
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
-        $this->handleHasSeenWithFunction[$this->lastHandle] = true; //Allow and chaining
+        $this->handleHasSeenWithFunction[$this->lastHandle] = true;
         return new EnqueueAssetContext($this, $this->lastHandle);
     }
 
     /**
-     * This is a alias for with, enabling chaining to be
-     * done in a more natural language.
+     * Alias for chaining convenience — requires with() to have been called first.
      *
-     * @return EnqueueAssetContext
+     * @throws \RuntimeException
      */
     public function and(): EnqueueAssetContext
     {
-        if (!isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
-            throw new \RuntimeException('Chaining and() is not allowed before with(). Looking for: ' . $this->lastHandle . ' In dataset: ' . json_encode($this->handleHasSeenWithFunction));
+        if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
+            throw new \RuntimeException(
+                'Chaining and() is not allowed before with(). Looking for: '
+                . (string) $this->lastHandle
+                . ' In dataset: ' . json_encode($this->handleHasSeenWithFunction)
+            );
         }
         return $this->with();
     }
@@ -112,43 +115,94 @@ class EnqueueManager
     /**
      * Attach translation data to a specific asset handle.
      *
+     * Enforces:
+     *  - only JS assets accept translations (wp_localize_script)
+     *  - translation object names must be unique across all assets
+     *
      * @param string $handle
-     * @param array $localizationData
-     * @return void
+     * @param string $objectName
+     * @param array $localizationData associative array to pass to wp_localize_script
+     *
+     * @throws \RuntimeException|\InvalidArgumentException
      */
     public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
     {
+        $assetType = $this->getAssetTypeForHandle($handle);
+
+        if ($assetType === 'css') {
+            throw new \RuntimeException('Cannot add translation to a CSS asset.');
+        }
+
+        if (in_array($objectName, $this->usedTranslationObjectNames, true)) {
+            throw new \RuntimeException("Translation object name '{$objectName}' must be unique across all assets.");
+        }
+
+        $this->usedTranslationObjectNames[] = $objectName;
+
         $funcs = $this->getRegisterEnqeueFunctions('js');
 
         if (isset($funcs['localize'])) {
-            foreach ($localizationData as $objectName => $data) {
-                if (!is_array($data)) {
-                    throw new \InvalidArgumentException('Translation data for wpLocalizeScript must be an array.');
-                }
-                $funcs['localize']($handle, $objectName, $data);
+            if (!is_array($localizationData)) {
+                throw new \InvalidArgumentException('Localization data must be an array.');
             }
+            // Pass full data through wp_localize_script as-is
+            $funcs['localize']($handle, $objectName, $localizationData);
         }
     }
 
     /**
      * Attach arbitrary data to a specific asset handle (for extensibility).
      *
+     * Currently only allowed for JS assets (placeholder for future features).
+     *
      * @param string $handle
      * @param array $data
-     * @return void
+     *
+     * @throws \RuntimeException
      */
     public function addDataToHandle(string $handle, array $data): void
     {
-        // Example: store or process data for the asset. Extend as needed.
-        // This could be used for custom attributes, inline data, etc.
+        $assetType = $this->getAssetTypeForHandle($handle);
+        if ($assetType === 'css') {
+            throw new \RuntimeException('Cannot add data to a CSS asset.');
+        }
+
+        // Placeholder: store or process data for the asset (e.g. inline JSON, custom attributes)
+        // e.g. $this->inlineData[$handle] = $data; — implement storage as needed.
     }
 
     /**
-     * Chainable method to add translation for an asset.
+     * Infer the asset type for a given handle.
      *
-     * @param string $src Asset source file name.
-     * @param string $textDomain Text domain for translation.
+     * Best-effort: tries to infer from lastHandle and config; otherwise defaults to 'js'.
+     *
+     * @param string $handle
+     * @return string 'js'|'css'
+     */
+    private function getAssetTypeForHandle(string $handle): string
+    {
+        // If the handle equals lastHandle and distFolder exists, try to infer by suffix.
+        if ($this->lastHandle === $handle && isset($this->config['distFolder'])) {
+            if (substr($handle, -4) === '.css' || substr((string) $handle, -4) === '.css') {
+                return 'css';
+            }
+            if (substr((string) $handle, -3) === '.js') {
+                return 'js';
+            }
+        }
+
+        // Fallback: default to js (safer for translations/data)
+        return 'js';
+    }
+
+    /**
+     * Chainable convenience: addTranslation by source (file) and textdomain.
+     *
+     * @param string $src
+     * @param string $textDomain
      * @return self
+     *
+     * @throws \RuntimeException
      */
     public function addTranslation(string $src, string $textDomain): self
     {
@@ -165,15 +219,14 @@ class EnqueueManager
     }
 
     /**
-     * Add an asset (CSS/JS) to the queue of assets to be rendered.
-     * If cache busting is enabled, it will use the CacheBustManager to get the correct file name.
-     * Module will be assumed if the file exists in the cachebust manifest and not explicitly set.
+     * Adds an asset (CSS/JS) to the queue of assets to be rendered.
      *
-     * @param string $handle The handle name for the script or style.
-     * @param string $src The source URL of the script or style.
-     * @param array $deps An array of dependencies for the script or style.
-     * @param bool|null $module Whether to add the "module" attribute to the script tag.
-     * @return void
+     * @param string $handle
+     * @param string $src
+     * @param array $deps
+     * @param bool|null $module
+     *
+     * @throws \InvalidArgumentException|\RuntimeException
      */
     public function addAsset(string $handle, string $src, array $deps = [], ?bool $module = null): void
     {
@@ -196,11 +249,9 @@ class EnqueueManager
     }
 
     /**
-     * Validate parameters for adding an asset.
+     * Validate parameters for addAsset.
      *
-     * @param string $handle
-     * @param string $src
-     * @return void
+     * @throws \InvalidArgumentException|\RuntimeException
      */
     private function validateAddAssetParams(string $handle, string $src): void
     {
@@ -213,17 +264,17 @@ class EnqueueManager
         }
 
         if (self::$assetsDistPath === null) {
-            throw new \RuntimeException(
-                'Dist directory is not set. Please set it using setDistDirectory() method.'
-            );
+            throw new \RuntimeException('Dist directory is not set. Please set it using setDistDirectory() method.');
         }
     }
 
     /**
-     * Get the register, enqueue, and optional localize functions based on file type.
+     * Get the register/enqueue/localize callables for a type.
      *
-     * @param string $type The file type ('js' or 'css').
-     * @return array Associative array with 'register', 'enqueue', and optionally 'localize'.
+     * @param string $type 'js'|'css'
+     * @return array
+     *
+     * @throws \InvalidArgumentException
      */
     private function getRegisterEnqeueFunctions(string $type): array
     {
@@ -251,11 +302,9 @@ class EnqueueManager
     }
 
     /**
-     * Add attributes to the script tag for a given handle.
+     * Add attributes to script tag for given handle.
      *
-     * @param string $handle
-     * @param array $attributes
-     * @return void
+     * Uses script_loader_tag filter to inject attributes like type="module".
      */
     private function addAttributesToScriptTag(string $handle, array $attributes): void
     {
@@ -264,6 +313,7 @@ class EnqueueManager
             function ($tag, $tagHandle) use ($handle, $attributes) {
                 if ($tagHandle === $handle) {
                     foreach ($attributes as $key => $value) {
+                        // Insert attribute before src=
                         $tag = str_replace(
                             ' src=',
                             sprintf(' %s="%s" src=', esc_attr($key), esc_attr($value)),
@@ -271,7 +321,6 @@ class EnqueueManager
                         );
                     }
                 }
-
                 return $tag;
             },
             10,
@@ -280,11 +329,13 @@ class EnqueueManager
     }
 
     /**
-     * Get the file type extension from the source string.
+     * Get the file type from the source string.
      *
      * @param string $src
      * @param string $handle
-     * @return string
+     * @return string 'js'|'css'
+     *
+     * @throws \InvalidArgumentException
      */
     private function getFileType(string $src, string $handle = ''): string
     {
@@ -304,10 +355,7 @@ class EnqueueManager
     }
 
     /**
-     * Get the URL of an asset with optional cache busting.
-     *
-     * @param string $src
-     * @return string
+     * Resolve full asset URL (with cache-busting if available).
      */
     private function getAssetUrl(string $src): string
     {
@@ -317,11 +365,7 @@ class EnqueueManager
     }
 
     /**
-     * Determine if the script should be treated as a module.
-     *
-     * @param string $src
-     * @param string $handle
-     * @return bool
+     * Determine if a script is a module by checking manifest (if available).
      */
     private function isModule(string $src, string $handle = ''): bool
     {

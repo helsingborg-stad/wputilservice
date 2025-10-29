@@ -55,7 +55,7 @@ class EnqueueManagerTest extends TestCase
               ->with()->data([
                 'id' => 1
               ])
-              ->and()->translation('objectName', [
+              ->and()->translation('objectName2', [
                 'localization_b' => ['Test']
               ])
             ->add('secondary.js');
