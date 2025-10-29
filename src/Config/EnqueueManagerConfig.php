@@ -12,9 +12,9 @@ declare(strict_types=1);
  */
 class EnqueueManagerConfig implements I
 {
-    protected bool $cacheBust = true;
+    protected bool $cacheBust       = true;
     protected string $distDirectory = '/assets/dist/';
-    protected string $manifestName = 'manifest.json';
+    protected string $manifestName  = 'manifest.json';
 
     /**
      * Set cache busting state.

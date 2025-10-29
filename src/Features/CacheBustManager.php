@@ -5,6 +5,9 @@ namespace WpUtilService\Features;
 use WpService\WpService;
 use WpServiceTrait;
 
+/**
+ * Class for managing cache busting of assets.
+ */
 class CacheBustManager
 {
     use WpServiceTrait;
@@ -12,16 +15,17 @@ class CacheBustManager
     /**
      * Storage var for the dist path and manifest name
      */
-    private static string   $manifestName = 'manifest.json';
-    private static ?string  $manifestPath = '';
+    private static string $manifestName  = 'manifest.json';
+    private static ?string $manifestPath = '';
 
     /**
      * Set the manifest name.
      *
      * @param string $manifestName The name of the manifest file.
      */
-    public function setManifestName(string $manifestName): self {
-        if(empty($manifestName) || str_ends_with($manifestName, '.json') === false) {
+    public function setManifestName(string $manifestName): self
+    {
+        if (empty($manifestName) || str_ends_with($manifestName, '.json') === false) {
             throw new \InvalidArgumentException("Manifest name cannot be empty and must end with .json");
         }
         self::$manifestName = $manifestName;
@@ -33,7 +37,8 @@ class CacheBustManager
      *
      * @param string $distDirectory The path to the distribution directory.
      */
-    public function setManifestPath(string $manifestPath): self {
+    public function setManifestPath(string $manifestPath): self
+    {
         self::$manifestPath = rtrim($manifestPath, '/') . '/';
         return $this;
     }
@@ -71,7 +76,7 @@ class CacheBustManager
                 if (file_exists($revManifestPath)) {
                     $revManifest = json_decode(file_get_contents($revManifestPath), true);
                     if (is_array($revManifest)) {
-                        wp_cache_set('municipio-rev-manifest', $revManifest);
+                        wp_cache_set('wputilservice-rev-manifest', $revManifest);
                         return $revManifest;
                     }
                 }
@@ -90,7 +95,7 @@ class CacheBustManager
     public static function name(string $name): string
     {
         $manifest = self::getManifest();
-        if(isset($manifest[$name])) {
+        if (isset($manifest[$name])) {
             return $manifest[$name];
         }
         return $name;
