@@ -72,7 +72,7 @@ class EnqueueManager implements Enqueue
     /**
      * Get the instance of the EnqueueManager.
      */
-    public function getEnqueueManager(): EnqueueManager
+    public function enqueue(): EnqueueManager
     {
         return $this;
     }
