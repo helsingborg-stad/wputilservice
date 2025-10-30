@@ -227,6 +227,8 @@ class EnqueueManagerTest extends TestCase
      */
     private function getWpService(): FakeWpService
     {
-        return new FakeWpService();
+        $wpService = new FakeWpService();
+        $wpServiceLogged = new LoggedFakeWpService($wpService);
+        return $wpServiceLogged;
     }
 }

@@ -11,33 +11,20 @@ class FakeWpService extends BaseFakeWpService
     public array $enqueuedScripts = [];
     public array $localizedScripts = [];
     public array $filters = [];
-    private array $callLog = [];
 
     public function __construct(private array $methods = []) {}
 
     public function __call(string $name, array $arguments)
     {
         if (isset($this->methods[$name])) {
-            $this->logCall($name, $arguments);
             return ($this->methods[$name])(...$arguments);
         }
 
+        if (method_exists($this, $name)) {
+            return $this->{$name}(...$arguments);
+        }
+
         throw new \BadMethodCallException("Method {$name} does not exist.");
-    }
-
-    public function logCall(string $method, array $arguments): void
-    {
-        $this->callLog[$method][] = $arguments;
-    }
-
-    public function getCallLog(string $method): array
-    {
-        return $this->callLog[$method] ?? [];
-    }
-
-    public function wasCalled(string $method): bool
-    {
-        return isset($this->callLog[$method]);
     }
 
     public function wpRegisterScript(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, array|bool $args = []): bool
@@ -59,7 +46,6 @@ class FakeWpService extends BaseFakeWpService
 
     public function wpRegisterStyle(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, string $media = 'all'): bool
     {
-        // Simulate style registration
         return true;
     }
 
