@@ -11,4 +11,5 @@ Enqueue Manager (WpUtilService\Tests\EnqueueManager)
  [x] Throws if translation is added on asset without ability
  [x] Throws if data is added on asset without ability
  [x] Wp register script is called when adding script and carrys normalized params
+ [x] Wp register style is called when adding style and carrys normalized params
 
