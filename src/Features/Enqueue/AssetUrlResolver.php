@@ -42,7 +42,7 @@ class AssetUrlResolver
      */
     public function getDistDirectory(): ?string
     {
-        return self::$assetsDistPath;
+        return rtrim(self::$assetsDistPath, '/') . '/';
     }
 
     /**
@@ -50,8 +50,8 @@ class AssetUrlResolver
      */
     public function getAssetUrl(string $src): string
     {
-        return $this->wpService->getTemplateDirectoryUri()
-            . self::$assetsDistPath
+        return rtrim($this->wpService->getTemplateDirectoryUri(), '/') . '/' 
+            . self::$assetsDistPath 
             . ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src);
     }
 
