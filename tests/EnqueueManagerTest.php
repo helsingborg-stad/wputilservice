@@ -57,6 +57,48 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
+    public function testComplexFluentApiChainingWithParametizedTranslation()
+    {
+        //Setup deps
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Test chaining add and with('translation')->
+        $result = $manager
+            ->add('main.js', ['jquery'], '1.0.0', true)
+              ->with('translation', 'objectName', [
+                  'localization_a' => ['Test']
+              ])->and()->data([
+                  'id' => 1
+              ]);
+
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testComplexFluentApiChainingWithParametizedTranslationAndData()
+    {
+        //Setup deps
+        $manager = new EnqueueManager(
+            $this->getWpService()
+        );
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Test chaining add and with('translation')->
+        $result = $manager
+            ->add('main.js', ['jquery'], '1.0.0', true)
+              ->with('translation', 'objectName', [
+                  'localization_a' => ['Test']
+              ])->with('data', [
+                  'id' => 1
+              ])->with('data', [
+                  'id' => 1
+              ]);
+
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
     #[TestDox('Complex fluent API chaining works and returns the manager instance')]
     public function testComplexFluentApiChaining() {
 

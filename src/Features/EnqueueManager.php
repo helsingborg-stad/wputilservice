@@ -96,7 +96,7 @@ class EnqueueManager implements Enqueue
      * 
      * @throws \RuntimeException
      */
-    public function with(?string $function = null, ...$args): EnqueueAssetContext
+    public function with(?string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
     {
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
@@ -107,9 +107,10 @@ class EnqueueManager implements Enqueue
 
         if (!is_null($function) && method_exists($assetContext, $function)) {
             $assetContext->$function(...$args);
+            return $this; // Return the manager instance after executing the function
         }
 
-        return $assetContext;
+        return $assetContext; // Return the context instance if no function is executed
     }
 
     /**

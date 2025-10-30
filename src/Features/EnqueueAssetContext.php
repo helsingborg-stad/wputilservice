@@ -42,7 +42,7 @@ class EnqueueAssetContext
             $localizationData
         );
 
-        return $this->manager;
+        return $this->manager; // Return the manager instance for chaining
     }
 
     /**
@@ -54,6 +54,16 @@ class EnqueueAssetContext
     public function data(array $data): EnqueueManager
     {
         $this->manager->addDataToHandle($this->handle, $data);
+        return $this->manager; // Return the manager instance for chaining
+    }
+
+    /**
+     * Retrieve the EnqueueManager instance.
+     *
+     * @return EnqueueManager
+     */
+    public function getManager(): EnqueueManager
+    {
         return $this->manager;
     }
 }
