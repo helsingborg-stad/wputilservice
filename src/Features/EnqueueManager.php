@@ -81,7 +81,7 @@ class EnqueueManager implements Enqueue
         // Ensure the handle includes a valid file extension
         if (!str_ends_with($handle, '.css') && !str_ends_with($handle, '.js')) {
             $extension = pathinfo($src, PATHINFO_EXTENSION);
-            $handle .= $extension ? ".{$extension}" : '';
+            $handle   .= $extension ? ".{$extension}" : '';
         }
 
         $this->addAsset($handle, $src, $deps, $module);
@@ -155,6 +155,8 @@ class EnqueueManager implements Enqueue
             }
             // Pass full data through wp_localize_script as-is
             $funcs['localize']($handle, $objectName, $localizationData);
+        } else {
+            throw new \RuntimeException('Localization is not supported for this asset type.');
         }
     }
 
