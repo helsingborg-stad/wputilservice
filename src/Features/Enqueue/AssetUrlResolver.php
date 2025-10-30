@@ -61,7 +61,7 @@ class AssetUrlResolver
     public function isModule(string $src): bool
     {
         // Extract extension
-        $ext = strtolower(pathinfo($src, PATHINFO_EXTENSION) ?? '');
+        $ext = strtolower(pathinfo($src, PATHINFO_EXTENSION));
 
         if ($ext === 'js') {
             $manifest = $this->cacheBustManager ? $this->cacheBustManager->getManifest() : [];
