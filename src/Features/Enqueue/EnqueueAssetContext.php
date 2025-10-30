@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WpUtilService\Features;
+namespace WpUtilService\Features\Enqueue;
 
 /**
  * Context helper for asset-specific operations in the fluent API.
