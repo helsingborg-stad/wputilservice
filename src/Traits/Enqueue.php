@@ -14,7 +14,9 @@ trait Enqueue
     /**
      * Entrypoint for the enqueue feature.
      *
-     * Example usage:
+     *  $wpUtilService->enKo()
+     * 
+     * Example usage (en ko):
      * $wpUtilService->enqueue(['distFolder' => '/var/www/dist'])
      *     ->add('main.js', ['jquery'], '1.0.0', true)
      *         ->with()

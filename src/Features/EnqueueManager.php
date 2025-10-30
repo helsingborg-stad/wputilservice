@@ -92,23 +92,34 @@ class EnqueueManager implements Enqueue
     /**
      * Returns a context object for the last added asset, enabling .with()->... chaining.
      *
+     * @param string|null $function Optional specific method to call on the context object (shortcut).
+     * 
      * @throws \RuntimeException
      */
-    public function with(): EnqueueAssetContext
+    public function with(?string $function = null, ...$args): EnqueueAssetContext
     {
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
         $this->handleHasSeenWithFunction[$this->lastHandle] = true;
-        return new EnqueueAssetContext($this, $this->lastHandle);
+
+        $assetContext = new EnqueueAssetContext($this, $this->lastHandle);
+
+        if (!is_null($function) && method_exists($assetContext, $function)) {
+            $assetContext->$function(...$args);
+        }
+
+        return $assetContext; // Always return the context object
     }
 
     /**
      * Alias for chaining convenience — requires with() to have been called first.
      *
+     * @param string|null $function Optional specific method to call on the context object (shortcut).
+     *
      * @throws \RuntimeException
      */
-    public function and(): EnqueueAssetContext
+    public function and(?string $function = null, ...$args): EnqueueAssetContext
     {
         if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
             throw new \RuntimeException(
@@ -117,6 +128,8 @@ class EnqueueManager implements Enqueue
                 . ' In dataset: ' . json_encode($this->handleHasSeenWithFunction)
             );
         }
+        $this->with($function, ...$args);
+        
         return $this->with();
     }
 
@@ -244,7 +257,7 @@ class EnqueueManager implements Enqueue
             $this->getFileType($src, $handle)
         );
 
-        $module                     = $module ?? $this->isModule($src, $handle);
+        $module  = $module ?? $this->isModule($src, $handle);
         $fullSrc = $this->getAssetUrl($src);
 
         $func['register']($handle, $fullSrc, $deps);
