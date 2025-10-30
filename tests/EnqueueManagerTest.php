@@ -15,7 +15,6 @@ use WpService\Implementations\FakeWpService;
  */
 class EnqueueManagerTest extends TestCase
 {
-    #[TestDox('Fluent API chaining works and returns the manager instance')]
     public function testFluentApiChaining()
     {
         //Setup deps
@@ -99,7 +98,6 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    #[TestDox('Complex fluent API chaining works and returns the manager instance')]
     public function testComplexFluentApiChaining() {
 
         //Setup deps
@@ -125,7 +123,6 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    #[TestDox('If and is used before with, it throws an exception')]
     public function testAndThrowsIfUsedBeforeWith() {
         $manager = new EnqueueManager(
             $this->getWpService()

@@ -3,26 +3,12 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
          bootstrap="bootstrap.php"
          backupGlobals="false"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true">
+         colors="true">
 
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">./src</directory>
-      <directory suffix=".php">./generator</directory>
-    </include>
-    <exclude>
-      <directory suffix=".test.php">./src</directory>
-      <directory suffix=".test.php">./generator</directory>
-    </exclude>
-    <report>
-      <text outputFile="php://stdout" showUncoveredFiles="true"/>
-      <html outputDirectory=".coverage"/>
-      <clover outputFile="./.coverage/clover.xml"/>
-    </report>
-  </coverage>
+  <logging>
+    <junit outputFile="phpunit-log.xml"/>
+    <testdoxText outputFile="phpunit-testdox.txt"/>
+  </logging>
 
   <testsuites>
     <testsuite name="Unit Test Suite">
@@ -30,4 +16,5 @@
       <directory suffix="Test.php">./tests</directory>
     </testsuite>
   </testsuites>
+
 </phpunit>

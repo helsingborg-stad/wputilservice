@@ -1,0 +1,13 @@
+Enqueue Manager (WpUtilService\Tests\EnqueueManager)
+ [x] Fluent api chaining
+ [x] Fluent api chaining with parametized translation
+ [x] Complex fluent api chaining with parametized translation
+ [x] Complex fluent api chaining with parametized translation and data
+ [x] Complex fluent api chaining
+ [x] And throws if used before with
+ [x] With throws if no asset added
+ [x] Context returns manager
+ [x] Throws if object name is not unique
+ [x] Throws if translation is added on asset without ability
+ [x] Throws if data is added on asset without ability
+
