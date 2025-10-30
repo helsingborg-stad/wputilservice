@@ -35,6 +35,11 @@ class FakeWpService extends BaseFakeWpService
         return $this->callLog[$method] ?? [];
     }
 
+    public function wasCalled(string $method): bool
+    {
+        return isset($this->callLog[$method]);
+    }
+
     public function wpRegisterScript(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, array|bool $args = []): bool
     {
         $this->registeredScripts[$handle] = compact('src', 'deps', 'ver', 'args');

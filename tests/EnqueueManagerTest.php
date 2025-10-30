@@ -203,6 +203,9 @@ class EnqueueManagerTest extends TestCase
         $this->assertEquals('/path/to/dist/main.js', $wpService->registeredScripts['main.js']['src']);
         $this->assertEquals(['jquery'], $wpService->registeredScripts['main.js']['deps']);
 
+        // Verify that wpRegisterScript was called
+        $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
+
         // Verify that wpRegisterScript was called with the correct arguments
         $this->assertContains(
             [
