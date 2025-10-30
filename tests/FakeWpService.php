@@ -1,47 +1,76 @@
 <?php
 declare(strict_types=1);
 
-namespace WpService;
+namespace WpUtilService\Tests;
 
-class FakeWpService
+use WpService\Implementations\FakeWpService as BaseFakeWpService;
+
+class FakeWpService extends BaseFakeWpService
 {
     public array $registeredScripts = [];
     public array $enqueuedScripts = [];
     public array $localizedScripts = [];
     public array $filters = [];
+    private array $callLog = [];
 
-    public function wpRegisterScript($handle, $src, $deps, $ver, $inFooter)
+    public function __construct(private array $methods = []) {}
+
+    public function __call(string $name, array $arguments)
     {
-        $this->registeredScripts[$handle] = compact('src', 'deps', 'ver', 'inFooter');
+        if (isset($this->methods[$name])) {
+            $this->logCall($name, $arguments);
+            return ($this->methods[$name])(...$arguments);
+        }
+
+        throw new \BadMethodCallException("Method {$name} does not exist.");
     }
 
-    public function wpEnqueueScript($handle)
+    public function logCall(string $method, array $arguments): void
+    {
+        $this->callLog[$method][] = $arguments;
+    }
+
+    public function getCallLog(string $method): array
+    {
+        return $this->callLog[$method] ?? [];
+    }
+
+    public function wpRegisterScript(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, array|bool $args = []): bool
+    {
+        $this->registeredScripts[$handle] = compact('src', 'deps', 'ver', 'args');
+        return true;
+    }
+
+    public function wpEnqueueScript(string $handle, string $src = '', array $deps = [], string|bool|null $ver = false, array|bool $args = []): void
     {
         $this->enqueuedScripts[] = $handle;
     }
 
-    public function wpLocalizeScript($handle, $objectName, $data)
+    public function wpLocalizeScript(string $handle, string $objectName, array $data): bool
     {
         $this->localizedScripts[$handle][$objectName] = $data;
+        return true;
     }
 
-    public function wpRegisterStyle($handle, $src, $deps, $ver)
+    public function wpRegisterStyle(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, string $media = 'all'): bool
     {
         // Simulate style registration
+        return true;
     }
 
-    public function wpEnqueueStyle($handle)
+    public function wpEnqueueStyle(string $handle, string $src = '', array $deps = [], string|bool|null $ver = false, string $media = 'all'): void
     {
         // Simulate style enqueue
     }
 
-    public function addFilter($tag, $callback, $priority, $acceptedArgs)
+    public function addFilter(string $hookName, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
     {
-        $this->filters[$tag][] = compact('callback', 'priority', 'acceptedArgs');
+        $this->filters[$hookName][] = compact('callback', 'priority', 'acceptedArgs');
+        return true;
     }
 
-    public function getTemplateDirectoryUri()
+    public function getTemplateDirectoryUri(): string
     {
-        return '/fake/theme/uri/';
+        return '';
     }
 }

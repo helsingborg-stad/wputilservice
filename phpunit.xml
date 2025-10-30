@@ -3,7 +3,9 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
          bootstrap="bootstrap.php"
          backupGlobals="false"
-         colors="true">
+         colors="true"
+         displayDetailsOnAllIssues="true"
+        >
 
   <logging>
     <junit outputFile="phpunit-log.xml"/>

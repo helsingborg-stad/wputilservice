@@ -7,6 +7,11 @@
             "WpUtilService\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "WpUtilService\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Sebastian Thulin",
@@ -21,13 +26,15 @@
         "php-stubs/wordpress-stubs": "^6.6",
         "johnpbloch/wordpress": "^6.6",
         "helsingborg-stad/wpservice": "^2",
-        "carthage-software/mago": "^0.26.1"
+        "carthage-software/mago": "^0.26.1",
+        "phpstan/phpstan": "^2.1"
     },
     "scripts": {
         "test": "./vendor/bin/phpunit --testdox --no-coverage",
         "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --testdox",
         "lint": "vendor/carthage-software/mago/composer/bin/mago lint",
-        "fix": "vendor/carthage-software/mago/composer/bin/mago lint --format --fix"
+        "fix": "vendor/carthage-software/mago/composer/bin/mago lint --format --fix",
+        "stan": "php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon"
     },
     "config": {
         "allow-plugins": {

@@ -7,12 +7,8 @@ namespace WpUtilService\Tests;
 use PHPUnit\Framework\TestCase;
 use WpUtilService\Features\EnqueueManager;
 use WpUtilService\Features\EnqueueAssetContext;
-use WpService\Implementations\FakeWpService;
+use WpUtilService\Tests\FakeWpService;
 
-/**
- * @covers \WpUtilService\Features\EnqueueManager
- * @covers \WpUtilService\Features\EnqueueAssetContext
- */
 class EnqueueManagerTest extends TestCase
 {
     public function testFluentApiChaining()
@@ -195,6 +191,32 @@ class EnqueueManagerTest extends TestCase
         $manager->with()->data(['key' => 'value']);
     }
 
+    public function testThatWpRegisterScriptIsCalledWhenAddingScript()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->add('main.js', ['jquery'], '1.0.0', true);
+
+        $this->assertArrayHasKey('main.js', $wpService->registeredScripts);
+        $this->assertEquals('/path/to/dist/main.js', $wpService->registeredScripts['main.js']['src']);
+        $this->assertEquals(['jquery'], $wpService->registeredScripts['main.js']['deps']);
+
+        // Verify that wpRegisterScript was called with the correct arguments
+        $this->assertContains(
+            [
+                'main.js',
+                '/path/to/dist/main.js',
+                ['jquery'],
+                true,
+                null
+            ],
+            $wpService->getCallLog('wpRegisterScript'),
+            'wpRegisterScript was not called with the expected arguments.'
+        );
+    }
+
     /**
      * Get a mock WordPress service for testing.
      *
@@ -202,12 +224,6 @@ class EnqueueManagerTest extends TestCase
      */
     private function getWpService(): FakeWpService
     {
-        return new FakeWpService([
-            'getTemplateDirectoryUri' => fn() => '/path/to/templates',
-            'wpRegisterScript'        => fn($handle, $src, $deps, $inFooter, $module) => true,
-            'wpLocalizeScript'        => fn($handle, $objectName, $l10n) => true,
-            'addFilter'               => fn($hook, $callback) => true,
-            'wpRegisterStyle'         => fn($handle, $src, $deps, $version) => true
-        ]);
+        return new FakeWpService();
     }
 }

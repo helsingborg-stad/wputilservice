@@ -10,4 +10,5 @@ Enqueue Manager (WpUtilService\Tests\EnqueueManager)
  [x] Throws if object name is not unique
  [x] Throws if translation is added on asset without ability
  [x] Throws if data is added on asset without ability
+ [ ] That wp register script is called when adding script
 

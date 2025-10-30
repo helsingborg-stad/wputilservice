@@ -1,0 +1,14 @@
+# PHPStan Configuration File
+parameters:
+    level: 1
+    paths:
+        - src
+        - tests
+    bootstrapFiles:
+        - vendor/autoload.php
+    ignoreErrors:
+        - '#Method .*? not found#'
+    checkMissingTypehints: true
+    checkUnionTypes: true
+    checkExplicitMixed: true
+    reportUnmatchedIgnoredErrors: true

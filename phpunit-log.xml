@@ -1,19 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="/workspaces/wputilservice/phpunit.xml" tests="11" assertions="12" errors="0" failures="0" skipped="0" time="0.347811">
-    <testsuite name="Unit Test Suite" tests="11" assertions="12" errors="0" failures="0" skipped="0" time="0.347811">
-      <testsuite name="WpUtilService\Tests\EnqueueManagerTest" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" tests="11" assertions="12" errors="0" failures="0" skipped="0" time="0.347811">
-        <testcase name="testFluentApiChaining" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="18" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.346595"/>
-        <testcase name="testFluentApiChainingWithParametizedTranslation" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="41" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000119"/>
-        <testcase name="testComplexFluentApiChainingWithParametizedTranslation" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="59" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000108"/>
-        <testcase name="testComplexFluentApiChainingWithParametizedTranslationAndData" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="79" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000099"/>
-        <testcase name="testComplexFluentApiChaining" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="101" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000095"/>
-        <testcase name="testAndThrowsIfUsedBeforeWith" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="126" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000344"/>
-        <testcase name="testWithThrowsIfNoAssetAdded" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="136" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000086"/>
-        <testcase name="testContextReturnsManager" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="146" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="2" time="0.000094"/>
-        <testcase name="testThrowsIfObjectNameIsNotUnique" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="164" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000094"/>
-        <testcase name="testThrowsIfTranslationIsAddedOnAssetWithoutAbility" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="176" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000093"/>
-        <testcase name="testThrowsIfDataIsAddedOnAssetWithoutAbility" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="187" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000084"/>
+  <testsuite name="/workspaces/wputilservice/phpunit.xml" tests="12" assertions="16" errors="0" failures="1" skipped="0" time="0.320062">
+    <testsuite name="Unit Test Suite" tests="12" assertions="16" errors="0" failures="1" skipped="0" time="0.320062">
+      <testsuite name="WpUtilService\Tests\EnqueueManagerTest" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" tests="12" assertions="16" errors="0" failures="1" skipped="0" time="0.320062">
+        <testcase name="testFluentApiChaining" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="14" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.312783"/>
+        <testcase name="testFluentApiChainingWithParametizedTranslation" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="37" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000139"/>
+        <testcase name="testComplexFluentApiChainingWithParametizedTranslation" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="55" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000100"/>
+        <testcase name="testComplexFluentApiChainingWithParametizedTranslationAndData" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="75" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000101"/>
+        <testcase name="testComplexFluentApiChaining" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="97" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000110"/>
+        <testcase name="testAndThrowsIfUsedBeforeWith" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="122" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000509"/>
+        <testcase name="testWithThrowsIfNoAssetAdded" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="132" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000093"/>
+        <testcase name="testContextReturnsManager" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="142" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="2" time="0.000093"/>
+        <testcase name="testThrowsIfObjectNameIsNotUnique" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="160" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000107"/>
+        <testcase name="testThrowsIfTranslationIsAddedOnAssetWithoutAbility" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="172" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000095"/>
+        <testcase name="testThrowsIfDataIsAddedOnAssetWithoutAbility" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="183" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="1" time="0.000088"/>
+        <testcase name="testThatWpRegisterScriptIsCalledWhenAddingScript" file="/workspaces/wputilservice/tests/EnqueueManagerTest.php" line="194" class="WpUtilService\Tests\EnqueueManagerTest" classname="WpUtilService.Tests.EnqueueManagerTest" assertions="4" time="0.005844">
+          <failure type="PHPUnit\Framework\ExpectationFailedException">WpUtilService\Tests\EnqueueManagerTest::testThatWpRegisterScriptIsCalledWhenAddingScript
+wpRegisterScript was not called with the expected arguments.
+Failed asserting that an array contains Array &amp;0 [
+    0 =&gt; 'main.js',
+    1 =&gt; '/path/to/dist/main.js',
+    2 =&gt; Array &amp;1 [
+        0 =&gt; 'jquery',
+    ],
+    3 =&gt; true,
+    4 =&gt; null,
+].
+
+/workspaces/wputilservice/tests/EnqueueManagerTest.php:207</failure>
+        </testcase>
       </testsuite>
     </testsuite>
   </testsuite>

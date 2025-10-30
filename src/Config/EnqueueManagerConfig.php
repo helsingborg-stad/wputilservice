@@ -4,9 +4,6 @@ namespace WpUtilService\Config;
 
 use WpUtilService\Config\EnqueueManagerConfigInterface as I;
 
-<?php
-declare(strict_types=1);
-
 /**
  * Implementation of EnqueueManagerConfigInterface for asset configuration.
  */
