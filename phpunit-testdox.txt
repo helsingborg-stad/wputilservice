@@ -1,14 +1,14 @@
 Enqueue Manager (WpUtilService\Tests\EnqueueManager)
- [ ] Fluent api chaining
- [ ] Fluent api chaining with parametized translation
- [ ] Complex fluent api chaining with parametized translation
- [ ] Complex fluent api chaining with parametized translation and data
- [ ] Complex fluent api chaining
- [ ] And throws if used before with
- [ ] With throws if no asset added
- [ ] Context returns manager
- [ ] Throws if object name is not unique
- [ ] Throws if translation is added on asset without ability
- [ ] Throws if data is added on asset without ability
- [ ] That wp register script is called when adding script
+ [x] Fluent api chaining
+ [x] Fluent api chaining with parametized translation
+ [x] Complex fluent api chaining with parametized translation
+ [x] Complex fluent api chaining with parametized translation and data
+ [x] Complex fluent api chaining
+ [x] And throws if used before with
+ [x] With throws if no asset added
+ [x] Context returns manager
+ [x] Throws if object name is not unique
+ [x] Throws if translation is added on asset without ability
+ [x] Throws if data is added on asset without ability
+ [x] Wp register script is called when adding script and carrys normalized params
 

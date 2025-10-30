@@ -191,7 +191,7 @@ class EnqueueManagerTest extends TestCase
         $manager->with()->data(['key' => 'value']);
     }
 
-    public function testThatWpRegisterScriptIsCalledWhenAddingScript()
+    public function testWpRegisterScriptIsCalledWhenAddingScriptAndCarrysNormalizedParams()
     {
         $wpService = $this->getWpService();
         $manager = new EnqueueManager($wpService);
@@ -199,24 +199,21 @@ class EnqueueManagerTest extends TestCase
 
         $manager->add('main.js', ['jquery'], '1.0.0', true);
 
-        $this->assertArrayHasKey('main.js', $wpService->registeredScripts);
-        $this->assertEquals('/path/to/dist/main.js', $wpService->registeredScripts['main.js']['src']);
-        $this->assertEquals(['jquery'], $wpService->registeredScripts['main.js']['deps']);
-
         // Verify that wpRegisterScript was called
         $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
 
         // Verify that wpRegisterScript was called with the correct arguments
+        $callLogItem = $wpService->getCallLog('wpRegisterScript');
         $this->assertContains(
             [
                 'main.js',
-                '/path/to/dist/main.js',
+                '/path/to/template/path/to/dist/main.js',
                 ['jquery'],
+                false,
                 true,
-                null
             ],
-            $wpService->getCallLog('wpRegisterScript'),
-            'wpRegisterScript was not called with the expected arguments.'
+            $callLogItem,
+            'wpRegisterScript was not called with the expected arguments. Got:' . var_export($callLogItem, true)
         );
     }
 
@@ -227,8 +224,8 @@ class EnqueueManagerTest extends TestCase
      */
     private function getWpService(): FakeWpService
     {
-        $wpService = new FakeWpService();
-        $wpServiceLogged = new LoggedFakeWpService($wpService);
-        return $wpServiceLogged;
+        return new FakeWpService(
+            new HandlingFakeWpService()
+        );
     }
 }

@@ -1,67 +1,91 @@
-<?php
-declare(strict_types=1);
+<?php 
 
 namespace WpUtilService\Tests;
 
+use WpService\WpService;
 use WpService\Implementations\FakeWpService as BaseFakeWpService;
 
 class FakeWpService extends BaseFakeWpService
 {
+    private array $callLog = [];
     public array $registeredScripts = [];
     public array $enqueuedScripts = [];
     public array $localizedScripts = [];
     public array $filters = [];
 
-    public function __construct(private array $methods = []) {}
+    public function __construct(private $innerService, private array $methods = []) {}
 
+    /**
+     * Magic method to handle dynamic method calls.
+     * This also logs the calls for verification.
+     */
     public function __call(string $name, array $arguments)
     {
+        $this->logCall($name, $arguments);
+
         if (isset($this->methods[$name])) {
             return ($this->methods[$name])(...$arguments);
         }
 
-        if (method_exists($this, $name)) {
-            return $this->{$name}(...$arguments);
+        if (method_exists($this->innerService, $name)) {
+            return $this->innerService->{$name}(...$arguments);
         }
 
         throw new \BadMethodCallException("Method {$name} does not exist.");
     }
 
-    public function wpRegisterScript(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, array|bool $args = []): bool
+    private function logCall(string $method, array $arguments): void
     {
-        $this->registeredScripts[$handle] = compact('src', 'deps', 'ver', 'args');
-        return true;
+        $this->callLog[$method][] = $arguments;
     }
 
-    public function wpEnqueueScript(string $handle, string $src = '', array $deps = [], string|bool|null $ver = false, array|bool $args = []): void
+    public function getCallLog(string $method): array
     {
-        $this->enqueuedScripts[] = $handle;
+        return $this->callLog[$method] ?? [];
     }
 
-    public function wpLocalizeScript(string $handle, string $objectName, array $data): bool
+    public function wasCalled(string $method): bool
     {
-        $this->localizedScripts[$handle][$objectName] = $data;
-        return true;
+        return !empty($this->callLog[$method]);
     }
 
-    public function wpRegisterStyle(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, string $media = 'all'): bool
-    {
-        return true;
-    }
-
-    public function wpEnqueueStyle(string $handle, string $src = '', array $deps = [], string|bool|null $ver = false, string $media = 'all'): void
-    {
-        // Simulate style enqueue
-    }
-
-    public function addFilter(string $hookName, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
-    {
-        $this->filters[$hookName][] = compact('callback', 'priority', 'acceptedArgs');
+    public function wpRegisterScript(
+        string $handle,
+        string|false $src,
+        array $deps = [],
+        string|bool|null $ver = false,
+        array|bool $args = []
+    ): bool {
+        $this->logCall('wpRegisterScript', func_get_args());
+        $this->registeredScripts[$handle] = [
+            'src' => $src,
+            'deps' => $deps,
+            'ver' => $ver,
+            'args' => $args,
+        ];
         return true;
     }
 
     public function getTemplateDirectoryUri(): string
     {
-        return '';
+        return '/path/to/template';
+    }
+
+    public function addFilter(string $hookName, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
+    {
+        $this->logCall('addFilter', func_get_args());
+        return true;
+    }
+
+    public function wpLocalizeScript(string $handle, string $objectName, array $data): bool
+    {
+        $this->logCall('wpLocalizeScript', func_get_args());
+        return true;
+    }
+
+    public function wpRegisterStyle(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, string $media = 'all'): bool
+    {
+        $this->logCall('wpRegisterStyle', func_get_args());
+        return true;
     }
 }
