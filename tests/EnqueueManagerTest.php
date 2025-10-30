@@ -50,10 +50,9 @@ class EnqueueManagerTest extends TestCase
         // Test chaining add and with('translation')->
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with()
-                ->translation('objectName', [
-                    'localization_a' => ['Test']
-                ]);
+              ->with('translation', 'objectName', [
+                  'localization_a' => ['Test']
+              ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }

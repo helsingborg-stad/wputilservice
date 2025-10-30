@@ -109,7 +109,7 @@ class EnqueueManager implements Enqueue
             $assetContext->$function(...$args);
         }
 
-        return $assetContext; // Always return the context object
+        return $assetContext;
     }
 
     /**
