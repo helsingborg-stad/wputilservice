@@ -2,7 +2,7 @@
 
 namespace WpUtilService\Contracts;
 
-use WpUtilService\Features\EnqueueManager;
+use WpUtilService\Features\Enqueue\EnqueueManager;
 
 /**
  * Interface for enqueue feature contract.

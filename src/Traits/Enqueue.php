@@ -3,7 +3,7 @@
 namespace WpUtilService\Traits;
 
 use WpUtilService\Config\EnqueueManagerConfigInterface;
-use WpUtilService\Features\EnqueueManager;
+use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\WpServiceTrait;
 
@@ -32,7 +32,7 @@ trait Enqueue
      *   - distFolder: string Path to asset distribution folder
      *   - manifestName: string Name of manifest file (default: 'manifest.json')
      *   - cacheBust: bool Enable cache busting (default: true)
-     * @return \WpUtilService\Features\EnqueueManager Chainable manager for asset operations
+     * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations
      */
     public function enqueue(array $config = []): EnqueueManager
     {

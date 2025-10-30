@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WpUtilService\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WpUtilService\Features\EnqueueManager;
-use WpUtilService\Features\EnqueueAssetContext;
+use WpUtilService\Features\Enqueue\EnqueueManager;
+use WpUtilService\Features\Enqueue\EnqueueAssetContext;
 use WpUtilService\Tests\FakeWpService;
 
 class EnqueueManagerTest extends TestCase
