@@ -217,6 +217,31 @@ class EnqueueManagerTest extends TestCase
         );
     }
 
+    public function testWpRegisterStyleIsCalledWhenAddingStyleAndCarrysNormalizedParams()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->add('main.css', ['bootstrap'], '1.0.0');
+
+        // Verify that wpRegisterStyle was called
+        $this->assertTrue($wpService->wasCalled('wpRegisterStyle'));
+
+        // Verify that wpRegisterStyle was called with the correct arguments
+        $callLogItem = $wpService->getCallLog('wpRegisterStyle');
+        $this->assertContains(
+            [
+                'main.css',
+                '/path/to/template/path/to/dist/main.css',
+                ['bootstrap'],
+                false
+            ],
+            $callLogItem,
+            'wpRegisterStyle was not called with the expected arguments. Got:' . var_export($callLogItem, true)
+        );
+    }
+
     /**
      * Get a mock WordPress service for testing.
      *

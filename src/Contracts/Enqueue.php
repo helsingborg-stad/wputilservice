@@ -14,5 +14,5 @@ interface Enqueue
      *
      * @return EnqueueManager
      */
-    public function getEnqueueManager(): EnqueueManager;
+    public function enqueue(): EnqueueManager;
 }
