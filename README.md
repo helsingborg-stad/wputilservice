@@ -46,22 +46,22 @@ $wpUtilService = new WpUtilService($wpService);
 
 ```php
 $wpUtilService
-    ->enqueue(['distFolder' => '/var/www/dist'])
-    ->add('main.js', ['jquery'], '1.0.0', true)->with()->translation(
-        [
-            'localization_a' => __('Test', 'testdomain')
-        ]
-    )->add('second.js', [], '1.0.0', true)->with()->data([
-            'id' => 1
-    ])->with()->translation(['localization_b' => __("Test")])
-    ->add('secondary.js');
+    ->enqueue(__DIR__)
+    ->add('main.js', ['jquery'], '1.0.0', true)
+    ->with()->translation(
+        'objectName',
+        ['localization_a' => __('Test', 'testdomain')]
+    )->and()->data(
+        'objectName', 
+        ['id' => 1]
+    );
 ```
 
 - `enqueue()` returns an `EnqueueManager`.
 - `add()` enqueues a script.
-- `addTranslation()` adds translation for a script.
-- You can chain multiple calls fluently.
-- Options like `distFolder` can be used internally by the manager.
+- `with()` may be chained with data or translation functions. 
+- `and()` is a synonym to `with()` but cannot be called before `with()`.
+- You can chain multiple add calls fluently. There are no need to call multiple enqueue. 
 
 ---
 
@@ -74,26 +74,18 @@ To add a new feature:
 3. **Use the trait** in `WpUtilService`.
 4. Consumers interact only through the public entrypoint and manager API.
 
-Example: `Translation` feature
-
-```php
-$wpUtilService
-    ->translation()
-    ->add('main.js', 'my-textdomain');
-```
-
 ---
 
 ### Extending Managers with Helpers
 
-Managers can leverage additional helper classes. For example, `EnqueueManager` can use a `CacheBuster` helper:
+Managers can leverage additional helper classes. For example, `EnqueueManager` uses the `CacheBustManager` helper:
 
 ```php
-$cacheBuster = new CacheBuster();
-$scriptWithVersion = $cacheBuster->appendVersion('main.js');
+$cacheBustManager = new CacheBustManager();
+
 ```
 
-The manager keeps this **internal**, so the main service API remains clean.
+The enqueue manager keeps this **internal**, so the main service API remains clean. Helpers may reside the features folder, but should not have any publicly avabile api:s.
 
 ---
 
@@ -148,9 +140,3 @@ src/
    ├─ Enqueue.php             # Interface
    ├─ Translation.php         # Interface
 ```
-
----
-
-## Conclusion
-
-`WpUtilService` provides a **structured, extendable, and fluent** interface to WordPress functionality while keeping your main service lightweight and your code testable. Each feature is isolated in its own trait and manager, and helpers like cache-busting can be composed internally without affecting the public API.

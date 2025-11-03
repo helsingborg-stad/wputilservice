@@ -2,7 +2,7 @@
 
 namespace WpUtilService\Traits;
 
-use WpUtilService\Config\EnqueueenqueueManagerConfigInterface;
+use WpUtilService\Config\EnqueueManagerConfigInterface;
 use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\Features\RuntimeContextManager;
@@ -28,7 +28,7 @@ trait Enqueue
      *           'localization_a' => ['Test']
      *       ])
      *   ->and()
-     *       ->data([
+     *       ->data('objectName', [
      *           'id' => 1
      *       ]);
      *
@@ -47,6 +47,8 @@ trait Enqueue
     {
         //Config
         $enqueueManagerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
+
+        // Apply provided config overrides
         $rootDirectory   !== null ? $enqueueManagerConfig->setRootDirectory($rootDirectory): null;
         $distDirectory   !== null ? $enqueueManagerConfig->setDistDirectory($distDirectory): null;
         $manifestName    !== null ? $enqueueManagerConfig->setManifestName($manifestName): null;
