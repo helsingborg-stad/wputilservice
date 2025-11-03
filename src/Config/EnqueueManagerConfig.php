@@ -9,16 +9,23 @@ use WpUtilService\Config\EnqueueManagerConfigInterface as I;
  */
 class EnqueueManagerConfig implements I
 {
-    protected bool $cacheBust       = true;
-    protected string $distDirectory = '/assets/dist/';
-    protected string $manifestName  = 'manifest.json';
+    protected static bool $cacheBust       = true;
+    protected static string $distDirectory = '/assets/dist/';
+    protected static string $manifestName  = 'manifest.json';
+    protected static ?string $rootDirectory  = null;
 
     /**
      * Set cache busting state.
      */
     public function setCacheBustState(bool $cacheBust): I
     {
-        $this->cacheBust = $cacheBust;
+        self::$cacheBust = $cacheBust;
+        return $this;
+    }
+
+    public function setRootDirectory(string $rootDirectory): I
+    {
+        self::$rootDirectory = $rootDirectory;
         return $this;
     }
 
@@ -27,7 +34,7 @@ class EnqueueManagerConfig implements I
      */
     public function setDistDirectory(string $distDirectory): I
     {
-        $this->distDirectory = $distDirectory;
+        self::$distDirectory = $distDirectory;
         return $this;
     }
 
@@ -36,7 +43,7 @@ class EnqueueManagerConfig implements I
      */
     public function setManifestName(string $manifestName): I
     {
-        $this->manifestName = $manifestName;
+        self::$manifestName = $manifestName;
         return $this;
     }
 
@@ -45,7 +52,12 @@ class EnqueueManagerConfig implements I
      */
     public function getIsCacheBustEnabled(): bool
     {
-        return $this->cacheBust;
+        return self::$cacheBust;
+    }
+
+    public function getRootDirectory(): ?string
+    {
+        return self::$rootDirectory;
     }
 
     /**
@@ -53,7 +65,7 @@ class EnqueueManagerConfig implements I
      */
     public function getDistDirectory(): string
     {
-        return $this->distDirectory;
+        return self::$distDirectory;
     }
 
     /**
@@ -61,6 +73,6 @@ class EnqueueManagerConfig implements I
      */
     public function getManifestName(): string
     {
-        return $this->manifestName;
+        return self::$manifestName;
     }
 }

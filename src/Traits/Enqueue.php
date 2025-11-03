@@ -5,6 +5,7 @@ namespace WpUtilService\Traits;
 use WpUtilService\Config\EnqueueManagerConfigInterface;
 use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
+use WpUtilService\Features\RuntimeContextManager;
 use WpUtilService\WpServiceTrait;
 
 trait Enqueue
@@ -37,23 +38,34 @@ trait Enqueue
     public function enqueue(array $config = []): EnqueueManager
     {
         //Config
-        $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
+        //Memoized
+        static $managerConfig = null;
+        if ($managerConfig === null) {
+            $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
+        }
 
         // Default config values
-        $distDirectory = $config['distFolder'] ?? null;
+        $rootDirectory = $config['rootDirectory'] ?? null;
+        $distDirectory = $config['distDirectory'] ?? null;
         $manifestName  = $config['manifestName'] ?? null;
         $cacheBust     = $config['cacheBust'] ?? null;
 
         // Setup config object, if values are provided
+        $rootDirectory !== null && $managerConfig->setRootDirectory($rootDirectory);
         $distDirectory !== null && $managerConfig->setDistDirectory($distDirectory);
         $manifestName  !== null && $managerConfig->setManifestName($manifestName);
         $cacheBust     !== null && $managerConfig->setCacheBustState($cacheBust);
+
+        //Setup runtime context
+        $runtimeContext = (new RuntimeContextManager(
+            $this->getWpService()
+        ))->setPath($managerConfig->getRootDirectory());
 
         // Setup cache bust manager, if enabled
         $cacheBustManager = null;
         if ($managerConfig->getIsCacheBustEnabled()) {
             $cacheBustManager = (new CacheBustManager($this->getWpService()))
-                ->setManifestPath($managerConfig->getDistDirectory())
+                ->setManifestPath($runtimeContext->getNormalizedRootPath() . $managerConfig->getDistDirectory())
                 ->setManifestName($managerConfig->getManifestName());
         }
 

@@ -61,28 +61,21 @@ class CacheBustManager
      * Supports MU-plugins, plugins, and themes.
      * Caches the manifest in a static variable and in WP object cache.
      */
-    public static function getManifest(): ?array
+    public function getManifest(): ?array
     {
         static $revManifest;
 
         if (!isset($revManifest)) {
-            $possiblePaths = [
-                get_stylesheet_directory() . '/' . self::$manifestPath . self::$manifestName,
-                WPMU_PLUGIN_DIR . '/' . self::$manifestPath . self::$manifestName,
-                WP_PLUGIN_DIR . '/' . self::$manifestPath . self::$manifestName,
-            ];
-
-            foreach ($possiblePaths as $revManifestPath) {
-                if (file_exists($revManifestPath)) {
-                    $revManifest = json_decode(file_get_contents($revManifestPath), true);
-                    if (is_array($revManifest)) {
-                        wp_cache_set('wputilservice-rev-manifest', $revManifest);
-                        return $revManifest;
-                    }
+            $revManifestPath = $this->getManifestFilePath();
+            if (file_exists($revManifestPath)) {
+                $revManifest = json_decode(file_get_contents($revManifestPath), true);
+                if (is_array($revManifest)) {
+                    wp_cache_set('wputilservice-rev-manifest', $revManifest);
+                    return $revManifest;
                 }
             }
 
-            throw new \RuntimeException("Failed to retrieve the manifest file from supported locations.");
+            throw new \RuntimeException("Failed to retrieve the manifest file.");
         }
 
         return $revManifest ?: null;
@@ -92,49 +85,12 @@ class CacheBustManager
      * Returns the revved/cache-busted file name of an asset.
      * @param string $name Asset name (array key) from rev-mainfest.json
      */
-    public static function name(string $name): string
+    public function name(string $name): string
     {
-        $manifest = self::getManifest();
+        $manifest = $this->getManifest();
         if (isset($manifest[$name])) {
             return $manifest[$name];
         }
         return $name;
-    }
-
-    /**
-     * This function detects what context that we are in, and returns the following enums.
-     *
-     * THEME,
-     * CHILDTHEME,
-     * MUPLUGIN,
-     * PLUGIN
-     *
-     * @return array<string>
-     */
-    private function getRuntimeContext(): array
-    {
-        $contexts = [];
-
-        // Check for theme
-        if (strpos(__DIR__, get_template_directory()) !== false) {
-            $contexts[] = 'THEME';
-        }
-
-        // Check for child theme
-        if (is_child_theme() && strpos(__DIR__, get_stylesheet_directory()) !== false) {
-            $contexts[] = 'CHILDTHEME';
-        }
-
-        // Check for MU-plugin
-        if (defined('WPMU_PLUGIN_DIR') && strpos(__DIR__, WPMU_PLUGIN_DIR) !== false) {
-            $contexts[] = 'MUPLUGIN';
-        }
-
-        // Check for normal plugin
-        if (defined('WP_PLUGIN_DIR') && strpos(__DIR__, WP_PLUGIN_DIR) !== false) {
-            $contexts[] = 'PLUGIN';
-        }
-
-        return $contexts;
     }
 }

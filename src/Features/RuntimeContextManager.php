@@ -6,44 +6,103 @@ use WpUtilService\WpServiceTrait;
 
 enum RuntimeContextEnum: string
 {
-    case THEME = 'theme';
+    case THEME      = 'themes';
     case CHILDTHEME = 'child-theme';
-    case MUPLUGIN = 'mu-plugin';
-    case PLUGIN = 'plugin';
+    case MUPLUGIN   = 'mu-plugins';
+    case PLUGIN     = 'plugins';
 }
 
 class RuntimeContextManager
 {
     use WpServiceTrait;
 
+    private ?string $rootPath = null;
+
     /**
-     * Detects the runtime context and returns the corresponding enum.
+     * Set the root path for context detection.
+     * This can be any path within a theme or plugin to help determine context.
+     * This will be used to get the root path of the theme or plugin.
      *
-     * @return RuntimeContextEnum|null
+     * @param string $path
+     * @return $this
      */
-    private function getRuntimeContext(): ?RuntimeContextEnum
+    public function setPath(string $path) : self
     {
-        // Check for child theme first (more specific than theme)
-        if (is_child_theme() && strpos(__DIR__, get_stylesheet_directory()) !== false) {
-            return RuntimeContextEnum::CHILDTHEME;
+        $this->rootPath = $path;
+
+        return $this;
+    }
+
+    /**
+     * Gets the root path of the current path provided. For example, if a child theme
+     * path is provided, it will return the child theme root path.
+     * If a plugin path is provided, it will return the plugin root path.
+     *
+     * @return string|null
+     */
+    public function getNormalizedRootPath(): ?string
+    {
+        $path = $this->rootPath;
+        if (!$path) {
+            throw new \RuntimeException('A path must be given.');
         }
 
-        // Check for theme
-        if (strpos(__DIR__, get_template_directory()) !== false) {
-            return RuntimeContextEnum::THEME;
+        $contexts = $this->getContextOfPath($path);
+        if (empty($contexts)) {
+            throw new \RuntimeException('Could not determine context type from path: ' . $path);
         }
+        $context = $contexts[0]; // Use first detected context
 
-        // Check for MU-plugin
-        if (defined('WPMU_PLUGIN_DIR') && strpos(__DIR__, WPMU_PLUGIN_DIR) !== false) {
-            return RuntimeContextEnum::MUPLUGIN;
+        switch ($context) {
+            case RuntimeContextEnum::THEME:
+            case RuntimeContextEnum::CHILDTHEME:
+                $parts = explode('/' . RuntimeContextEnum::THEME->value . '/', $path, 2);
+                if (count($parts) === 2) {
+                    $themeName = explode('/', $parts[1])[0];
+                    return $parts[0] . '/' . RuntimeContextEnum::THEME->value . '/' . $themeName . "/";
+                }
+                break;
+            case RuntimeContextEnum::PLUGIN:
+                $parts = explode('/' . RuntimeContextEnum::PLUGIN->value . '/', $path, 2);
+                if (count($parts) === 2) {
+                    $pluginName = explode('/', $parts[1])[0];
+                    return $parts[0] . '/' . RuntimeContextEnum::PLUGIN->value . '/' . $pluginName . '/';
+                }
+                break;
+            case RuntimeContextEnum::MUPLUGIN:
+                $parts = explode('/' . RuntimeContextEnum::MUPLUGIN->value . '/', $path, 2);
+                if (count($parts) === 2) {
+                    $muPluginName = explode('/', $parts[1])[0];
+                    return $parts[0] . '/' . RuntimeContextEnum::MUPLUGIN->value . '/' . $muPluginName . '/';
+                }
+                break;
         }
+        throw new \RuntimeException('Could not extract root path for context: ' . $context->value);
+    }
 
-        // Check for normal plugin
-        if (defined('WP_PLUGIN_DIR') && strpos(__DIR__, WP_PLUGIN_DIR) !== false) {
-            return RuntimeContextEnum::PLUGIN;
+    /**
+     * Get the context of the path provided. 
+     * 
+     * @param string $path
+     * 
+     * @return array Matching contexts. 
+     */
+    private function getContextOfPath(string $path): array
+    {
+        $contexts = [];
+
+        if (strpos($path, '/' . RuntimeContextEnum::THEME->value . '/') !== false) {
+            $contexts[] = RuntimeContextEnum::THEME;
         }
-
-        // Nothing matched
-        return null;
+        if (strpos($path, '/' . RuntimeContextEnum::CHILDTHEME->value . '/') !== false) {
+            $contexts[] = RuntimeContextEnum::CHILDTHEME;
+        }
+        if (strpos($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/') !== false) {
+            $contexts[] = RuntimeContextEnum::MUPLUGIN;
+        }
+        if (strpos($path, '/' . RuntimeContextEnum::PLUGIN->value . '/') !== false) {
+            $contexts[] = RuntimeContextEnum::PLUGIN;
+        }
+        return $contexts;
     }
 }

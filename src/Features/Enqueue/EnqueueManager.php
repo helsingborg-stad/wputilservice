@@ -68,10 +68,10 @@ class EnqueueManager implements Enqueue
         $this->config = $config;
         
         // Initialize support classes
-        $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
-        $this->assetRegistrar = new AssetRegistrar($wpService);
-        $this->assetLocalization = new AssetLocalization($this->assetRegistrar);
-        $this->assetData = new AssetData($this->assetRegistrar);
+        $this->assetUrlResolver       = new AssetUrlResolver($wpService, $cacheBustManager);
+        $this->assetRegistrar         = new AssetRegistrar($wpService);
+        $this->assetLocalization      = new AssetLocalization($this->assetRegistrar);
+        $this->assetData              = new AssetData($this->assetRegistrar);
         $this->scriptAttributeManager = new ScriptAttributeManager($wpService);
     }
 
@@ -95,21 +95,36 @@ class EnqueueManager implements Enqueue
     }
 
     /**
-     * Chainable method to add a script or style asset.
+     * Adds an asset (CSS/JS) by source path, with optional dependencies, version, and module flag.
+     *
+     * @param string      $src     Asset source path.
+     * @param array       $deps    Dependencies.
+     * @param string|null $version Optional version (currently unused).
+     * @param bool|null   $module  Whether to treat as JS module.
+     *
+     * @return self
      */
     public function add(string $src, array $deps = [], ?string $version = null, ?bool $module = null): self
     {
-        $handle = pathinfo($src, PATHINFO_FILENAME);
-
-        // Ensure the handle includes a valid file extension
-        if (!str_ends_with($handle, '.css') && !str_ends_with($handle, '.js')) {
-            $extension = pathinfo($src, PATHINFO_EXTENSION);
-            $handle   .= $extension ? ".{$extension}" : '';
-        }
-
+        $handle = $this->generateHandleFromSrc($src);
         $this->addAsset($handle, $src, $deps, $module);
         $this->lastHandle = $handle;
         return $this;
+    }
+
+    /**
+     * Generates a handle name from the asset source path.
+     *
+     * @param string $src
+     * @return string
+     */
+    private function generateHandleFromSrc(string $src): string
+    {
+        $handle = ucfirst(pathinfo($src, PATHINFO_FILENAME)) . ucfirst(pathinfo($src, PATHINFO_EXTENSION));
+        if($handle === '') {
+            throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
+        }
+        return $handle;
     }
 
     /**
@@ -130,10 +145,10 @@ class EnqueueManager implements Enqueue
 
         if (!is_null($function) && method_exists($assetContext, $function)) {
             $assetContext->$function(...$args);
-            return $this; // Return the manager instance after executing the function
+            return $this;
         }
 
-        return $assetContext; // Return the context instance if no function is executed
+        return $assetContext;
     }
 
     /**
@@ -225,10 +240,9 @@ class EnqueueManager implements Enqueue
         $this->validateAddAssetParams($handle, $src);
 
         $fileType = $this->assetRegistrar->getFileType($src, $handle);
-        $func = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
-
-        $module  = $module ?? $this->assetUrlResolver->isModule($src);
-        $fullSrc = $this->assetUrlResolver->getAssetUrl($src);
+        $func     = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
+        $module   = $module ?? $this->assetUrlResolver->isModule($src);
+        $fullSrc  = $this->assetUrlResolver->getAssetUrl($src);
 
         $func['register']($handle, $fullSrc, $deps);
 
