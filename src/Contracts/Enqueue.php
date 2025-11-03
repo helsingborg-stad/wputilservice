@@ -19,9 +19,9 @@ interface Enqueue
      * @return EnqueueManager
      */
     public function enqueue(
-        string $rootDirectory,
-        string $distDirectory = '/assets/dist/',
-        string $manifestName = 'manifest.json',
+        ?string $rootDirectory = null,
+        ?string $distDirectory = null,
+        ?string $manifestName = null,
         bool $cacheBust = true
     ): EnqueueManager;
 }

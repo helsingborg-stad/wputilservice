@@ -57,6 +57,9 @@ class EnqueueManagerConfig implements I
 
     public function getRootDirectory(): ?string
     {
+        if(is_null(self::$rootDirectory)) {
+            throw new \RuntimeException("Root directory is not set. Please provide it using setRootDirectory() method.");
+        }
         return self::$rootDirectory;
     }
 

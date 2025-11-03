@@ -78,7 +78,11 @@ class EnqueueManager implements Enqueue
     /**
      * Get the instance of the EnqueueManager.
      */
-    public function enqueue(): EnqueueManager
+    public function enqueue(
+        ?string $rootDirectory = null,
+        ?string $distDirectory = null,
+        ?string $manifestName = null,
+        bool $cacheBust = true): EnqueueManager
     {
         return $this;
     }

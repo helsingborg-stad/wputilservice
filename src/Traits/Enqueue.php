@@ -32,25 +32,25 @@ trait Enqueue
      *           'id' => 1
      *       ]);
      *
-     * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required.
+     * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required ONCE.
      * @param string $distDirectory   Path to asset distribution folder, relative to project root. Default: '/assets/dist/'.
      * @param string $manifestName    Name of manifest file. Default: 'manifest.json'.
      * @param bool   $cacheBust       Enable cache busting. Default: true.
      * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations.
      */
     public function enqueue(
-        string $rootDirectory,
-        string $distDirectory = '/assets/dist/',
-        string $manifestName = 'manifest.json',
+        ?string $rootDirectory = null,
+        ?string $distDirectory = null,
+        ?string $manifestName = null,
         bool $cacheBust = true
     ): EnqueueManager
     {
         //Config
         $enqueueManagerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
-        $enqueueManagerConfig->setRootDirectory($rootDirectory);
-        $enqueueManagerConfig->setDistDirectory($distDirectory);
-        $enqueueManagerConfig->setManifestName($manifestName);
-        $enqueueManagerConfig->setCacheBustState($cacheBust);
+        $rootDirectory   !== null ? $enqueueManagerConfig->setRootDirectory($rootDirectory): null;
+        $distDirectory   !== null ? $enqueueManagerConfig->setDistDirectory($distDirectory): null;
+        $manifestName    !== null ? $enqueueManagerConfig->setManifestName($manifestName): null;
+        $cacheBust       !== null ? $enqueueManagerConfig->setCacheBustState($cacheBust): null;
 
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager(
