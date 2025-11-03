@@ -2,8 +2,6 @@
 
 namespace WpUtilService\Features;
 
-use WpUtilService\WpServiceTrait;
-
 enum RuntimeContextEnum: string
 {
     case THEME      = 'themes';
@@ -13,8 +11,6 @@ enum RuntimeContextEnum: string
 
 class RuntimeContextManager
 {
-    use WpServiceTrait;
-
     private ?string $rootPath = null;
 
     /**
