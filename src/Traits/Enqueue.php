@@ -58,9 +58,15 @@ trait Enqueue
         // Setup cache bust manager, if enabled
         $cacheBustManager = null;
         if ($managerConfig->getIsCacheBustEnabled()) {
-            $cacheBustManager = (new CacheBustManager($this->getWpService()))
-                ->setManifestPath($runtimeContext->getNormalizedRootPath() . $managerConfig->getDistDirectory())
-                ->setManifestName($managerConfig->getManifestName());
+            $cacheBustManager = new CacheBustManager($this->getWpService());
+            
+            $cacheBustManager->setManifestPath(
+                $runtimeContext->getNormalizedRootPath() . $managerConfig->getDistDirectory()
+            );
+            
+            $cacheBustManager->setManifestName(
+                $managerConfig->getManifestName()
+            );
         }
 
         //Return configured EnqueueManager
