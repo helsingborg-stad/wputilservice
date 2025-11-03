@@ -65,12 +65,20 @@ class CacheBustManager
     {
         static $revManifest;
 
+        $cacheKey = 'wputilservice-rev-manifest-' . md5($this->getManifestFilePath());
+
         if (!isset($revManifest)) {
+
+            if ($this->getWpService()->wpCacheGet($cacheKey) !== false) {
+                $revManifest = $this->getWpService()->wpCacheGet($cacheKey);
+                return $revManifest;
+            }
+
             $revManifestPath = $this->getManifestFilePath();
             if (file_exists($revManifestPath)) {
                 $revManifest = json_decode(file_get_contents($revManifestPath), true);
                 if (is_array($revManifest)) {
-                    wp_cache_set('wputilservice-rev-manifest', $revManifest);
+                    $this->getWpService()->wpCacheSet($cacheKey, $revManifest);
                     return $revManifest;
                 }
             }
