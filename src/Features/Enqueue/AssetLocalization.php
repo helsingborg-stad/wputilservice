@@ -42,51 +42,32 @@ class AssetLocalization
      *
      * @throws \RuntimeException|\InvalidArgumentException
      */
-    public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
+    public function addTranslationToHandle(string $handle, ?string $objectName, array $localizationData): void
     {
-        $assetType = $this->assetRegistrar->getAssetTypeForHandle($handle);
-
-        if ($assetType === 'css') {
-            throw new \RuntimeException('Cannot add translation to a CSS asset.');
+        //Create name if not provided
+        if($objectName === null || $objectName === '') {
+            $objectName = ucfirst($handle) . 'Localization';
         }
 
+        //Check if name is unique
         if (in_array($objectName, $this->usedTranslationObjectNames, true)) {
             throw new \RuntimeException("Translation object name '{$objectName}' must be unique across all assets.");
         }
 
+        //Store as used name
         $this->usedTranslationObjectNames[] = $objectName;
 
+        //Get enqueue functions for asset type
         $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions('js');
 
+        //Check if localization is supported
         if (isset($funcs['localize'])) {
-            if (!is_array($localizationData)) {
-                throw new \InvalidArgumentException('Localization data must be an array.');
+            if (!is_array($localizationData) && !empty($localizationData)) {
+                throw new \InvalidArgumentException('Localization data must be an array and cannot be empty.');
             }
-            // Pass full data through wp_localize_script as-is
             $funcs['localize']($handle, $objectName, $localizationData);
         } else {
             throw new \RuntimeException('Localization is not supported for this asset type.');
         }
-    }
-
-    /**
-     * Attach arbitrary data to a specific asset handle (for extensibility).
-     *
-     * Currently only allowed for JS assets (placeholder for future features).
-     *
-     * @param string $handle
-     * @param array $data
-     *
-     * @throws \RuntimeException
-     */
-    public function addDataToHandle(string $handle, array $data): void
-    {
-        $assetType = $this->assetRegistrar->getAssetTypeForHandle($handle);
-        if ($assetType === 'css') {
-            throw new \RuntimeException('Cannot add data to a CSS asset.');
-        }
-
-        // Placeholder: store or process data for the asset (e.g. inline JSON, custom attributes)
-        // e.g. $this->inlineData[$handle] = $data; — implement storage as needed.
     }
 }

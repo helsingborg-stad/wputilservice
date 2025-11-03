@@ -44,6 +44,11 @@ class EnqueueManager implements Enqueue
     private AssetLocalization $assetLocalization;
 
     /**
+     * @var AssetData
+     */
+    private AssetData $assetData;
+
+    /**
      * @var ScriptAttributeManager
      */
     private ScriptAttributeManager $scriptAttributeManager;
@@ -66,6 +71,7 @@ class EnqueueManager implements Enqueue
         $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
         $this->assetRegistrar = new AssetRegistrar($wpService);
         $this->assetLocalization = new AssetLocalization($this->assetRegistrar);
+        $this->assetData = new AssetData($this->assetRegistrar);
         $this->scriptAttributeManager = new ScriptAttributeManager($wpService);
     }
 
@@ -169,13 +175,14 @@ class EnqueueManager implements Enqueue
      * Attach arbitrary data to a specific asset handle (for extensibility).
      *
      * @param string $handle
+     * @param string|null $objectName
      * @param array $data
      *
      * @throws \RuntimeException
      */
-    public function addDataToHandle(string $handle, array $data): void
+    public function addDataToHandle(string $handle, ?string $objectName, array $data): void
     {
-        $this->assetLocalization->addDataToHandle($handle, $data);
+        $this->assetData->addDataToHandle($handle, $objectName, $data);
     }
 
     /**

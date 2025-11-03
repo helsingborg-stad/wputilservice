@@ -3,7 +3,7 @@
 namespace WpUtilService\Features;
 
 use WpService\WpService;
-use WpServiceTrait;
+use WpUtilService\WpServiceTrait;
 
 /**
  * Class for managing cache busting of assets.
