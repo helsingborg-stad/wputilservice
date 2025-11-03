@@ -51,23 +51,10 @@ class RuntimeContextManager
             throw new \RuntimeException('Could not determine context type from path: ' . $path);
         }
 
-        $resolvers = [];
-        foreach (RuntimeContextEnum::cases() as $enumCase) {
-            $resolvers[$enumCase->value] = function($path) use ($enumCase) {
-                $parts = explode('/' . $enumCase->value . '/', $path, 2);
-                if (count($parts) === 2) {
-                    $name = explode('/', $parts[1])[0];
-                    return $parts[0] . '/' . $enumCase->value . '/' . $name . '/';
-                }
-                return null;
-            };
-        }
-
-        if (isset($resolvers[$context->value])) {
-            $result = $resolvers[$context->value]($path);
-            if ($result !== null) {
-                return $result;
-            }
+        $parts = explode('/' . $context->value . '/', $path, 2);
+        if (count($parts) === 2) {
+            $name = explode('/', $parts[1])[0];
+            return $parts[0] . '/' . $context->value . '/' . $name . '/';
         }
         throw new \RuntimeException('Could not extract root path for context: ' . $context->value);
     }
