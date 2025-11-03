@@ -2,7 +2,7 @@
 
 namespace WpUtilService\Traits;
 
-use WpUtilService\Config\EnqueueManagerConfigInterface;
+use WpUtilService\Config\EnqueueenqueueManagerConfigInterface;
 use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\Features\RuntimeContextManager;
@@ -39,13 +39,13 @@ trait Enqueue
     public function enqueue(array $config = []): EnqueueManager
     {
         //Config
-        $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
+        $enqueueManagerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
 
         // Setup config object, if values are provided
         foreach ($config as $key => $value) {
             $setter = 'set' . ucfirst($key);
-            if (method_exists($managerConfig, $setter) && $value !== null) {
-                $managerConfig->{$setter}($value);
+            if (method_exists($enqueueManagerConfig, $setter) && $value !== null) {
+                $enqueueManagerConfig->{$setter}($value);
             } else {
                 throw new \InvalidArgumentException("Invalid configuration key '{$key}' for EnqueueManagerConfig.");
             }
@@ -54,19 +54,19 @@ trait Enqueue
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager(
             $this->getWpService()
-        ))->setPath($managerConfig->getRootDirectory());
+        ))->setPath($enqueueManagerConfig->getRootDirectory());
 
         // Setup cache bust manager, if enabled
         $cacheBustManager = null;
-        if ($managerConfig->getIsCacheBustEnabled()) {
+        if ($enqueueManagerConfig->getIsCacheBustEnabled()) {
             $cacheBustManager = new CacheBustManager($this->getWpService());
             
             $cacheBustManager->setManifestPath(
-                $runtimeContext->getNormalizedRootPath() . $managerConfig->getDistDirectory()
+                $runtimeContext->getNormalizedRootPath() . $enqueueManagerConfig->getDistDirectory()
             );
 
             $cacheBustManager->setManifestName(
-                $managerConfig->getManifestName()
+                $enqueueManagerConfig->getManifestName()
             );
         }
 
@@ -74,6 +74,6 @@ trait Enqueue
         return (new EnqueueManager(
             $this->getWpService(),
             $cacheBustManager
-        ))->setDistDirectory($managerConfig->getDistDirectory());
+        ))->setDistDirectory($enqueueManagerConfig->getDistDirectory());
     }
 }
