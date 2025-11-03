@@ -39,6 +39,12 @@ class AssetRegistrar
                     $this->wpService->wpEnqueueScript($handle),
                 'localize' => fn($handle, $objectName, $data) =>
                     $this->wpService->wpLocalizeScript($handle, $objectName, $data),
+                'data'    => fn($handle, $objectName, $data) => 
+                    $this->wpService->wpAddInlineScript(
+                        $handle,
+                        'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
+                        'before'
+                    )
             ];
         }
 
