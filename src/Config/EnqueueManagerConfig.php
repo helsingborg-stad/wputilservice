@@ -55,6 +55,9 @@ class EnqueueManagerConfig implements I
         return self::$cacheBust;
     }
 
+    /**
+     * Get root directory.
+     */
     public function getRootDirectory(): ?string
     {
         if(is_null(self::$rootDirectory)) {

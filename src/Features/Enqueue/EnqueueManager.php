@@ -93,7 +93,7 @@ class EnqueueManager implements Enqueue
     public function setDistDirectory(string $distDirectory): self
     {
         $this->assetUrlResolver->setDistDirectory($distDirectory);
-        $this->config['distFolder'] = $this->assetUrlResolver->getDistDirectory();
+        $this->config['distDirectory'] = $this->assetUrlResolver->getDistDirectory();
 
         return $this;
     }

@@ -16,6 +16,11 @@ interface EnqueueManagerConfigInterface
   public function setCacheBustState(bool $cacheBust): EnqueueManagerConfigInterface;
 
   /**
+   * Set root directory.
+   */
+  public function setRootDirectory(string $rootDirectory): EnqueueManagerConfigInterface;
+
+  /**
    * Set distribution directory.
    */
   public function setDistDirectory(string $distDirectory): EnqueueManagerConfigInterface;
@@ -35,6 +40,11 @@ interface EnqueueManagerConfigInterface
    * Get distribution directory.
    */
   public function getDistDirectory(): string;
+
+  /**
+   * Get root directory.
+   */
+  public function getRootDirectory(): ?string;
 
   /**
    * Get manifest name.
