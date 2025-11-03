@@ -15,41 +15,42 @@ trait Enqueue
     /**
      * Entrypoint for the enqueue feature.
      *
-     *  $wpUtilService->enKo()
-     * 
-     * Example usage (en ko):
-     * $wpUtilService->enqueue(['distFolder' => '/var/www/dist'])
-     *     ->add('main.js', ['jquery'], '1.0.0', true)
-     *         ->with()
-     *             ->translation('objectName', [
-     *                 'localization_a' => ['Test']
-     *             ])
-     *         ->and()
-     *             ->data([
-     *                 'id' => 1
-     *             ]);
+     * Example usage:
+     *   $wpUtilService->enqueue(
+     *       rootDirectory: '/var/www/project',
+     *       distDirectory: '/assets/dist/',
+     *       manifestName:  'manifest.json',
+     *       cacheBust:     true
+     *   )
+     *   ->add('main.js', ['jquery'], '1.0.0', true)
+     *   ->with()
+     *       ->translation('objectName', [
+     *           'localization_a' => ['Test']
+     *       ])
+     *   ->and()
+     *       ->data([
+     *           'id' => 1
+     *       ]);
      *
-     * @param array $config Configuration options:
-     *   @type string $rootDirectory   Absolute path to project root directory, or any path within it. Required.
-     *   @type string $distDirectory   Path to asset distribution folder, relative to project root. Default: '/assets/dist/'.
-     *   @type string $manifestName    Name of manifest file. Default: 'manifest.json'.
-     *   @type bool   $cacheBust       Enable cache busting. Default: true.
-     * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations
+     * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required.
+     * @param string $distDirectory   Path to asset distribution folder, relative to project root. Default: '/assets/dist/'.
+     * @param string $manifestName    Name of manifest file. Default: 'manifest.json'.
+     * @param bool   $cacheBust       Enable cache busting. Default: true.
+     * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations.
      */
-    public function enqueue(array $config = []): EnqueueManager
+    public function enqueue(
+        string $rootDirectory,
+        string $distDirectory = '/assets/dist/',
+        string $manifestName = 'manifest.json',
+        bool $cacheBust = true
+    ): EnqueueManager
     {
         //Config
         $enqueueManagerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
-
-        // Setup config object, if values are provided
-        foreach ($config as $key => $value) {
-            $setter = 'set' . ucfirst($key);
-            if (method_exists($enqueueManagerConfig, $setter) && $value !== null) {
-                $enqueueManagerConfig->{$setter}($value);
-            } else {
-                throw new \InvalidArgumentException("Invalid configuration key '{$key}' for EnqueueManagerConfig.");
-            }
-        }
+        $enqueueManagerConfig->setRootDirectory($rootDirectory);
+        $enqueueManagerConfig->setDistDirectory($distDirectory);
+        $enqueueManagerConfig->setManifestName($manifestName);
+        $enqueueManagerConfig->setCacheBustState($cacheBust);
 
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager(
