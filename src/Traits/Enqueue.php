@@ -38,23 +38,17 @@ trait Enqueue
     public function enqueue(array $config = []): EnqueueManager
     {
         //Config
-        //Memoized
-        static $managerConfig = null;
-        if ($managerConfig === null) {
-            $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
-        }
-
-        // Default config values
-        $rootDirectory = $config['rootDirectory'] ?? null;
-        $distDirectory = $config['distDirectory'] ?? null;
-        $manifestName  = $config['manifestName'] ?? null;
-        $cacheBust     = $config['cacheBust'] ?? null;
+        $managerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
 
         // Setup config object, if values are provided
-        $rootDirectory !== null && $managerConfig->setRootDirectory($rootDirectory);
-        $distDirectory !== null && $managerConfig->setDistDirectory($distDirectory);
-        $manifestName  !== null && $managerConfig->setManifestName($manifestName);
-        $cacheBust     !== null && $managerConfig->setCacheBustState($cacheBust);
+        foreach ($config as $key => $value) {
+            $setter = 'set' . ucfirst($key);
+            if (method_exists($managerConfig, $setter) && $value !== null) {
+                $managerConfig->{$setter}($value);
+            } else {
+                throw new \InvalidArgumentException("Invalid configuration key '{$key}' for EnqueueManagerConfig.");
+            }
+        }
 
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager(
