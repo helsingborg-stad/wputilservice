@@ -30,7 +30,8 @@ trait Enqueue
      *             ]);
      *
      * @param array $config Configuration options:
-     *   - distFolder: string Path to asset distribution folder
+     *   - rootDirectory: string Path to project root directory, or any path within it. 
+     *   - distDirectory: string Path to asset dist folder, path from project root. (default: '/assets/dist/')
      *   - manifestName: string Name of manifest file (default: 'manifest.json')
      *   - cacheBust: bool Enable cache busting (default: true)
      * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations
@@ -63,7 +64,7 @@ trait Enqueue
             $cacheBustManager->setManifestPath(
                 $runtimeContext->getNormalizedRootPath() . $managerConfig->getDistDirectory()
             );
-            
+
             $cacheBustManager->setManifestName(
                 $managerConfig->getManifestName()
             );
