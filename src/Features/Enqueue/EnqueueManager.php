@@ -117,21 +117,6 @@ class EnqueueManager implements Enqueue
     }
 
     /**
-     * Generates a handle name from the asset source path.
-     *
-     * @param string $src
-     * @return string
-     */
-    private function generateHandleFromSrc(string $src): string
-    {
-        $handle = ucfirst(pathinfo($src, PATHINFO_FILENAME)) . ucfirst(pathinfo($src, PATHINFO_EXTENSION));
-        if($handle === '') {
-            throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
-        }
-        return $handle;
-    }
-
-    /**
      * Returns a context object for the last added asset, enabling .with()->... chaining.
      *
      * @param string|null $function Optional specific method to call on the context object (shortcut).
@@ -205,31 +190,6 @@ class EnqueueManager implements Enqueue
     }
 
     /**
-     * Chainable convenience: addTranslation by source (file) and textdomain.
-     *
-     * @param string $src
-     * @param string $textDomain
-     * @return self
-     *
-     * @throws \RuntimeException
-     */
-    public function addTranslation(string $src, string $textDomain): self
-    {
-        $handle = pathinfo($src, PATHINFO_FILENAME);
-        $funcs  = $this->assetRegistrar->getRegisterEnqueueFunctions(
-            $this->assetRegistrar->getFileType($src, $handle)
-        );
-
-        if (isset($funcs['localize'])) {
-            $funcs['localize']($handle, $textDomain, []);
-        } else {
-            throw new \RuntimeException('Localization is not supported for this asset type.');
-        }
-
-        return $this;
-    }
-
-    /**
      * Adds an asset (CSS/JS) to the queue of assets to be rendered.
      *
      * @param string $handle
@@ -239,7 +199,7 @@ class EnqueueManager implements Enqueue
      *
      * @throws \InvalidArgumentException|\RuntimeException
      */
-    public function addAsset(string $handle, string $src, array $deps = [], ?bool $module = null): void
+    private function addAsset(string $handle, string $src, array $deps = [], ?bool $module = null): void
     {
         $this->validateAddAssetParams($handle, $src);
 
@@ -275,5 +235,20 @@ class EnqueueManager implements Enqueue
         if ($this->assetUrlResolver->getDistDirectory() === null) {
             throw new \RuntimeException('Dist directory is not set. Please set it using setDistDirectory() method.');
         }
+    }
+
+    /**
+     * Generates a handle name from the asset source path.
+     *
+     * @param string $src
+     * @return string
+     */
+    private function generateHandleFromSrc(string $src): string
+    {
+        $handle = ucfirst(pathinfo($src, PATHINFO_FILENAME)) . ucfirst(pathinfo($src, PATHINFO_EXTENSION));
+        if($handle === '') {
+            throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
+        }
+        return $handle;
     }
 }
