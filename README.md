@@ -43,11 +43,18 @@ $wpUtilService = new WpUtilService($wpService);
 ---
 
 ### Enqueue Scripts and Add Translations
+- `enqueue()` returns an `EnqueueManager`.
+- `add()` enqueues a script.
+- `with()` may be chained with data or translation functions. 
+- `and()` is a synonym to `with()` but cannot be called before `with()`.
+- You can chain multiple add calls fluently. There are no need to call multiple enqueue. 
+- Enqueue implements the singleton pattern. This means that when you call enqueue() multiple times in succession, it will reuse the previously stored configuration instead of creating a new instance. 
 
+#### Example 1
 ```php
 $wpUtilService
     ->enqueue(__DIR__)
-    ->add('main.js', ['jquery'], '1.0.0', true)
+    ->add('main.js', ['jquery'])
     ->with()->translation(
         'objectName',
         ['localization_a' => __('Test', 'testdomain')]
@@ -57,12 +64,43 @@ $wpUtilService
     );
 ```
 
-- `enqueue()` returns an `EnqueueManager`.
-- `add()` enqueues a script.
-- `with()` may be chained with data or translation functions. 
-- `and()` is a synonym to `with()` but cannot be called before `with()`.
-- You can chain multiple add calls fluently. There are no need to call multiple enqueue. 
+#### Example 2 (alternative sytax)
+```php
+$wpUtilService
+    ->enqueue(__DIR__)
+    ->add('main.js', ['jquery'])
+    ->with('translation', 'objectName', ['localization_a' => __('Test', 'testdomain')])
+    ->and('data', 'objectName', ['id' => 1]);
+```
+---
 
+#### Example 3 (alternative sytax)
+```php
+$wpUtilService
+    ->enqueue(__DIR__)
+    ->add('main.js', ['jquery'])
+    ->with('translation', 'objectName', ['localization_a' => __('Test', 'testdomain')])
+    ->with('data', 'objectName', ['id' => 1]);
+```
+---
+
+#### Example 4 (chaining)
+```php
+$wpUtilService
+    ->enqueue(__DIR__)
+    ->add('main.js', ['jquery'])
+    ->with('data', 'objectName', ['id' => 1]);
+    ->add('main.css')
+    ->add('styleguide.css');
+```
+---
+
+#### Example 4
+```php
+$enqueue = $wpUtilService->enqueue(__DIR__); 
+$enqueue->add('main.js', ['jquery']); 
+$enqueue->add('main.css'); 
+```
 ---
 
 ### Adding New Features
