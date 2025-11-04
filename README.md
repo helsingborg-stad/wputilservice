@@ -42,7 +42,7 @@ $wpUtilService = new WpUtilService($wpService);
 
 ---
 
-### Enqueue Scripts and Add Translations
+### Enqueue Scripts
 - `enqueue()` returns an `EnqueueManager`.
 - `add()` enqueues a script.
 - `with()` may be chained with data or translation functions. 
