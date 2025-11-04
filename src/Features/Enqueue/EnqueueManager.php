@@ -11,7 +11,7 @@ use WpUtilService\Features\CacheBustManager;
 /**
  * Manager for enqueuing assets with fluent API and context chaining.
  */
-class EnqueueManager implements Enqueue
+class EnqueueManager implements EnqueueManagerInterface
 {
     /**
      * @var array Configuration options
