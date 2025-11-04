@@ -4,6 +4,14 @@
 
 ---
 
+## Install
+Install by running:
+```bash
+composer require helsingborg-stad/wputilservice
+```
+
+---
+
 ## Why This Design?
 
 - **Single Public Entrypoint per Feature:** Each feature (like enqueueing scripts or translations) is encapsulated in a **trait**. Traits expose exactly **one public method**, preventing API pollution.
