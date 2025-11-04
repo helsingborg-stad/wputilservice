@@ -95,7 +95,7 @@ $wpUtilService
 ```
 ---
 
-#### Example 4
+#### Example 5
 ```php
 $enqueue = $wpUtilService->enqueue(__DIR__); 
 $enqueue->add('main.js', ['jquery']); 
