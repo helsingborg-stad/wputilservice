@@ -85,9 +85,9 @@ class EnqueueManagerTest extends TestCase
             ->add('main.js', ['jquery'], '1.0.0', true)
               ->with('translation', 'objectName', [
                   'localization_a' => 'Test'
-              ])->with('data', [
+              ])->with('data', 'ObjectName', [
                   'id' => 1
-              ])->with('data', [
+              ])->with('data', 'ObjectName2', [
                   'test' => 'value'
               ]);
 
@@ -207,7 +207,7 @@ class EnqueueManagerTest extends TestCase
         $this->assertContains(
             [
                 'MainJs',
-                '/path/to/template/path/to/dist/main.js',
+                'path/to/template/path/to/dist/main.js',
                 ['jquery'],
                 false,
                 true,
@@ -232,8 +232,8 @@ class EnqueueManagerTest extends TestCase
         $callLogItem = $wpService->getCallLog('wpRegisterStyle');
         $this->assertContains(
             [
-                'main.css',
-                '/path/to/template/path/to/dist/main.css',
+                'MainCss',
+                'path/to/template/path/to/dist/main.css',
                 ['bootstrap'],
                 false
             ],

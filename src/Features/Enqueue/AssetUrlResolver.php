@@ -50,9 +50,19 @@ class AssetUrlResolver
      */
     public function getAssetUrl(string $src): string
     {
-        return rtrim($this->wpService->getTemplateDirectoryUri(), '/') . '/' 
-            . self::$assetsDistPath 
-            . ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src);
+        $parts = [
+            $this->wpService->getTemplateDirectoryUri(),
+            self::$assetsDistPath,
+            ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src)
+        ];
+
+        // Trim both leading and trailing slashes from each part
+        $parts  = array_filter($parts, fn($part) => !empty($part));
+        $parts  = array_map(fn($part) => trim($part, '/'), $parts);
+        $path   = implode('/', $parts);
+
+        // Remove debug output
+        return $path;
     }
 
     /**

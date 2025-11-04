@@ -65,7 +65,7 @@ trait Enqueue
             $cacheBustManager = new CacheBustManager($this->getWpService());
             
             $cacheBustManager->setManifestPath(
-                $runtimeContext->getNormalizedRootPath() . $enqueueManagerConfig->getDistDirectory()
+                realpath($runtimeContext->getNormalizedRootPath() . $enqueueManagerConfig->getDistDirectory())
             );
 
             $cacheBustManager->setManifestName(
