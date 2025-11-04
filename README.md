@@ -29,8 +29,8 @@ composer require helsingborg-stad/wputilservice
 ### Basic Setup
 
 ```php
-use WpService\\NativeWpService;
-use WpUtilService\\WpUtilService;
+use WpService\NativeWpService;
+use WpUtilService\WpUtilService;
 
 $wpService = new NativeWpService();
 $wpUtilService = new WpUtilService($wpService);
