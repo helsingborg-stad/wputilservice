@@ -4,14 +4,6 @@
 
 ---
 
-## Install
-Install by running:
-```bash
-composer require helsingborg-stad/wputilservice
-```
-
----
-
 ## Why This Design?
 
 - **Single Public Entrypoint per Feature:** Each feature (like enqueueing scripts or translations) is encapsulated in a **trait**. Traits expose exactly **one public method**, preventing API pollution.
@@ -24,14 +16,10 @@ composer require helsingborg-stad/wputilservice
 
 ## Installation
 
-Add `WpUtilService` to your project using PSR-4 autoloading. Example composer setup:
+Add `WpUtilService` to your project using PSR-4 autoloading with composer:
 
-```json
-"autoload": {
-    "psr-4": {
-        "WpUtilService\\\\": "src/"
-    }
-}
+```bash
+composer require helsingborg-stad/wputilservice
 ```
 
 ---
