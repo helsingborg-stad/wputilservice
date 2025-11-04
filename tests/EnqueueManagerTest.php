@@ -27,7 +27,7 @@ class EnqueueManagerTest extends TestCase
                   'localization_a' => ['Test']
                 ])
               ->and()
-                ->data([
+                ->data('ObjectName', [
                   'id' => 1
                 ]);
 
@@ -46,7 +46,7 @@ class EnqueueManagerTest extends TestCase
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
               ->with('translation', 'objectName', [
-                  'localization_a' => ['Test']
+                  'localization_a' => 'Test'
               ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
@@ -64,8 +64,8 @@ class EnqueueManagerTest extends TestCase
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
               ->with('translation', 'objectName', [
-                  'localization_a' => ['Test']
-              ])->and()->data([
+                  'localization_a' => 'Test'
+              ])->and()->data(null, [
                   'id' => 1
               ]);
 
@@ -84,11 +84,11 @@ class EnqueueManagerTest extends TestCase
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
               ->with('translation', 'objectName', [
-                  'localization_a' => ['Test']
+                  'localization_a' => 'Test'
               ])->with('data', [
                   'id' => 1
               ])->with('data', [
-                  'id' => 1
+                  'test' => 'value'
               ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
@@ -108,7 +108,7 @@ class EnqueueManagerTest extends TestCase
                 'localization_a' => ['Test']
               ])
             ->add('second.js', [], '1.0.0', true)
-              ->with()->data([
+              ->with()->data(null, [
                 'id' => 1
               ])
               ->and()->translation('objectName2', [
@@ -188,7 +188,7 @@ class EnqueueManagerTest extends TestCase
 
         $manager->add('main.css');
         $this->expectException(\RuntimeException::class);
-        $manager->with()->data(['key' => 'value']);
+        $manager->with()->data('ObjectName', ['key' => 'value']);
     }
 
     public function testWpRegisterScriptIsCalledWhenAddingScriptAndCarrysNormalizedParams()
@@ -206,7 +206,7 @@ class EnqueueManagerTest extends TestCase
         $callLogItem = $wpService->getCallLog('wpRegisterScript');
         $this->assertContains(
             [
-                'main.js',
+                'MainJs',
                 '/path/to/template/path/to/dist/main.js',
                 ['jquery'],
                 false,

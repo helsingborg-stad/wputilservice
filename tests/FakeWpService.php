@@ -66,6 +66,12 @@ class FakeWpService extends BaseFakeWpService
         return true;
     }
 
+    public function wpAddInlineScript(string $handle, string $data, string $position = 'after'): bool
+    {
+        $this->logCall('wpAddInlineScript', func_get_args());
+        return true;
+    }
+
     public function getTemplateDirectoryUri(): string
     {
         return '/path/to/template';
