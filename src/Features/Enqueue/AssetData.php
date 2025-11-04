@@ -58,7 +58,9 @@ class AssetData
         $this->usedDataObjectNames[] = $objectName;
 
         //Get enqueue functions for asset type
-        $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions('js');
+        $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions(
+            $this->assetRegistrar->getAssetTypeForHandle($handle)
+        );
 
         //Check if data is supported
         if (isset($funcs['data'])) {
