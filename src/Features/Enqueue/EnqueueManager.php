@@ -80,11 +80,17 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function enqueue(
         ?string $rootDirectory = null,
+        ?array  $hooks = null,
         ?string $distDirectory = null,
         ?string $manifestName = null,
         bool $cacheBust = true): EnqueueManager
     {
         return $this;
+    }
+
+    public function getAssetRegistrar(): AssetRegistrar
+    {
+        return $this->assetRegistrar;
     }
 
     /**
@@ -159,34 +165,6 @@ class EnqueueManager implements EnqueueManagerInterface
         $this->with($function, ...$args);
         
         return $this->with();
-    }
-
-    /**
-     * Attach translation data to a specific asset handle.
-     *
-     * @param string $handle
-     * @param string $objectName
-     * @param array $localizationData
-     *
-     * @throws \RuntimeException|\InvalidArgumentException
-     */
-    public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
-    {
-        $this->assetLocalization->addTranslationToHandle($handle, $objectName, $localizationData);
-    }
-
-    /**
-     * Attach arbitrary data to a specific asset handle (for extensibility).
-     *
-     * @param string $handle
-     * @param string|null $objectName
-     * @param array $data
-     *
-     * @throws \RuntimeException
-     */
-    public function addDataToHandle(string $handle, ?string $objectName, array $data): void
-    {
-        $this->assetData->addDataToHandle($handle, $objectName, $data);
     }
 
     /**

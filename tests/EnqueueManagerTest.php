@@ -242,6 +242,34 @@ class EnqueueManagerTest extends TestCase
         );
     }
 
+    public function testIfHooksIsDefinedEnqueueIsCalledOnTheDefinedHooks()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Define hooks
+        $hooks = [
+            'wp_enqueue_scripts' => 10,
+            'admin_enqueue_scripts' => 20,
+        ];
+        //$manager->setHooks($hooks);
+
+        // Add an asset
+        $manager->add('main.js');
+
+        // Simulate WordPress calling the hooks
+        foreach ($hooks as $hook => $priority) {
+            $wpService->doAction($hook);
+        }
+
+        $enqueueCalled      = $wpService->getCallLog('wp_enqueue_scripts') !== null;
+        $adminEnqueueCalled = $wpService->getCallLog('admin_enqueue_scripts') !== null;
+
+        // Verify that wpEnqueueScript was called twice (once for each hook)
+        $this->assertEquals(true, $enqueueCalled && $adminEnqueueCalled);
+    }
+
     /**
      * Get a mock WordPress service for testing.
      *

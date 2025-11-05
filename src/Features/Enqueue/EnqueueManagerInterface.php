@@ -17,6 +17,7 @@ interface EnqueueManagerInterface
    */
   public function enqueue(
     ?string $rootDirectory = null,
+    ?array  $hooks = null,
     ?string $distDirectory = null,
     ?string $manifestName = null,
     bool $cacheBust = true

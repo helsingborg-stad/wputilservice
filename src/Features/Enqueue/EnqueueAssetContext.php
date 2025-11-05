@@ -36,7 +36,9 @@ class EnqueueAssetContext
      */
     public function translation(?string $objectName, array $localizationData): EnqueueManager
     {
-        $this->manager->addTranslationToHandle(
+        (new AssetLocalization(
+            $this->manager->getAssetRegistrar()
+        ))->addTranslationToHandle(
             $this->handle,
             $objectName,
             $localizationData
@@ -53,17 +55,14 @@ class EnqueueAssetContext
      */
     public function data(?string $objectName, array $data): EnqueueManager
     {
-        $this->manager->addDataToHandle($this->handle, $objectName, $data);
-        return $this->manager;
-    }
-
-    /**
-     * Retrieve the EnqueueManager instance.
-     *
-     * @return EnqueueManager
-     */
-    public function getManager(): EnqueueManager
-    {
+        (new AssetData(
+            $this->manager->getAssetRegistrar()
+        ))->addDataToHandle(
+            $this->handle,
+            $objectName,
+            $data
+        );
+        
         return $this->manager;
     }
 }
