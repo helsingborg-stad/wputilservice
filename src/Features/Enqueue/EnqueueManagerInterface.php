@@ -53,22 +53,5 @@ interface EnqueueManagerInterface
    * @param string|null $function Optional specific method to call on the context object (shortcut).
    */
   public function and(?string $function = null, ...$args);
-
-  /**
-   * Attach translation data to a specific asset handle.
-   *
-   * @param string $handle
-   * @param string $objectName
-   * @param array $localizationData
-   */
-  public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void;
-
-  /**
-   * Attach arbitrary data to a specific asset handle (for extensibility).
-   *
-   * @param string $handle
-   * @param string|null $objectName
-   * @param array $data
-   */
-  public function addDataToHandle(string $handle, ?string $objectName, array $data): void;
+  
 }
