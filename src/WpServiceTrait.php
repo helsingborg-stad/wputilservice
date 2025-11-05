@@ -11,7 +11,7 @@ trait WpServiceTrait
         $this->wpService = $wpService;
     }
 
-    public function getWpService(): WpService
+    private function getWpService(): WpService
     {
         return $this->wpService;
     }
