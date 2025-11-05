@@ -13,6 +13,7 @@ class EnqueueManagerConfig implements I
     protected static string $distDirectory = '/assets/dist/';
     protected static string $manifestName  = 'manifest.json';
     protected static ?string $rootDirectory  = null;
+    protected static ?array $hooks = null;
 
     /**
      * Set cache busting state.
@@ -44,6 +45,21 @@ class EnqueueManagerConfig implements I
     public function setManifestName(string $manifestName): I
     {
         self::$manifestName = $manifestName;
+        return $this;
+    }
+
+    /**
+     * Set hooks with their priorities.
+     */
+    public function setHooks(array $hooks): I
+    {
+        //Validate 'string' => int pairs
+        foreach($hooks as $hookName => $priority) {
+            if(!is_string($hookName) || !is_int($priority)) {
+                throw new \InvalidArgumentException("Hooks must be an array of 'string' => int pairs.");
+            }
+        }
+        self::$hooks = $hooks;
         return $this;
     }
 
@@ -80,5 +96,13 @@ class EnqueueManagerConfig implements I
     public function getManifestName(): string
     {
         return self::$manifestName;
+    }
+
+    /**
+     * Get hooks with their priorities.
+     */
+    public function getHooks(): ?array
+    {
+        return self::$hooks;
     }
 }

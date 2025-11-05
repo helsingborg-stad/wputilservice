@@ -33,6 +33,9 @@ trait Enqueue
      *       ]);
      *
      * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required ONCE.
+     * @param array  $hooks           Array of hooks with their priorities. Example: ['wp_enqueue_scripts' => 10]. Default: null. 
+     *                                If null, no hooks are applied. Implementation will need to wrap enqueue methods in appropriate 
+     *                                hooks manually.
      * @param string $distDirectory   Path to asset distribution folder, relative to project root. Default: '/assets/dist/'.
      * @param string $manifestName    Name of manifest file. Default: 'manifest.json'.
      * @param bool   $cacheBust       Enable cache busting. Default: true.
@@ -40,6 +43,7 @@ trait Enqueue
      */
     public function enqueue(
         ?string $rootDirectory = null,
+        ?array  $hooks = null,
         ?string $distDirectory = null,
         ?string $manifestName = null,
         bool $cacheBust = true
@@ -53,6 +57,7 @@ trait Enqueue
         $distDirectory   !== null ? $enqueueManagerConfig->setDistDirectory($distDirectory): null;
         $manifestName    !== null ? $enqueueManagerConfig->setManifestName($manifestName): null;
         $cacheBust       !== null ? $enqueueManagerConfig->setCacheBustState($cacheBust): null;
+        $hooks           !== null ? $enqueueManagerConfig->setHooks($hooks): null;
 
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager(
