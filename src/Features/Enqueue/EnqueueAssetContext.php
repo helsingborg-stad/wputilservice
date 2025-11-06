@@ -21,11 +21,6 @@ class EnqueueAssetContext {
     /** @var AssetData|null */
     private ?AssetData $assetData = null;
 
-    /**
-     * Track used object names for both translation and data
-     * @var array
-     */
-    private array $usedObjectNames = [];
 
     /**
      * Constructor for context helper.
@@ -48,17 +43,12 @@ class EnqueueAssetContext {
      */
     public function translation(?string $objectName, array $localizationData): EnqueueManager
     {
+
         //Create name if not provided
         if($objectName === null || $objectName === '') {
             $objectName = ucfirst($this->handle) . 'Localization';
         }
 
-        //Check if name is unique across both translation and data
-        if (in_array($objectName, $this->usedObjectNames, true)) {
-            throw new \RuntimeException("Object name '{$objectName}' must be unique across all assets (translation/data).");
-        }
-        $this->usedObjectNames[] = $objectName;
-        
         if ($this->assetLocalization === null) {
             $this->assetLocalization = new AssetLocalization(
                 $this->manager->getAssetRegistrar()
@@ -70,8 +60,6 @@ class EnqueueAssetContext {
             $objectName,
             $localizationData
         );
-
-        $this->usedObjectNames[] = $objectName;
 
         return $this->manager;
     }
@@ -88,12 +76,6 @@ class EnqueueAssetContext {
         if($objectName === null || $objectName === '') {
             $objectName = ucfirst($this->handle) . 'Data';
         }
-
-        //Check if name is unique across both translation and data
-        if (in_array($objectName, $this->usedObjectNames, true)) {
-            throw new \RuntimeException("Object name '{$objectName}' must be unique across all assets (translation/data).");
-        }
-        $this->usedObjectNames[] = $objectName;
 
         if (!isset($this->assetData)) {
             $this->assetData = new AssetData(

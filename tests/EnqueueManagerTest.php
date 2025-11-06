@@ -157,18 +157,6 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    public function testThrowsIfObjectNameIsNotUnique()
-    {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
-
-        $manager->add('main.js')->with()->translation('objectName', ['key' => ['value']]) ;
-        $this->expectException(\RuntimeException::class);
-        $manager->add('second.js')->with()->translation('objectName', ['key' => ['value']]);
-    }
-    
-
     public function testThrowsIfTranslationIsAddedOnAssetWithoutAbility()
     {
         $manager = new EnqueueManager(
