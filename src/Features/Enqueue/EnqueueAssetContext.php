@@ -7,13 +7,25 @@ namespace WpUtilService\Features\Enqueue;
 /**
  * Context helper for asset-specific operations in the fluent API.
  */
-class EnqueueAssetContext
-{
+class EnqueueAssetContext {
+
     /** @var EnqueueManager */
     private EnqueueManager $manager;
 
     /** @var string */
     private string $handle;
+
+    /** @var AssetLocalization|null */
+    private ?AssetLocalization $assetLocalization = null;
+
+    /** @var AssetData|null */
+    private ?AssetData $assetData = null;
+
+    /**
+     * Track used object names for both translation and data
+     * @var array
+     */
+    private array $usedObjectNames = [];
 
     /**
      * Constructor for context helper.
@@ -36,15 +48,32 @@ class EnqueueAssetContext
      */
     public function translation(?string $objectName, array $localizationData): EnqueueManager
     {
-        (new AssetLocalization(
-            $this->manager->getAssetRegistrar()
-        ))->addTranslationToHandle(
+        //Create name if not provided
+        if($objectName === null || $objectName === '') {
+            $objectName = ucfirst($this->handle) . 'Localization';
+        }
+
+        //Check if name is unique across both translation and data
+        if (in_array($objectName, $this->usedObjectNames, true)) {
+            throw new \RuntimeException("Object name '{$objectName}' must be unique across all assets (translation/data).");
+        }
+        $this->usedObjectNames[] = $objectName;
+        
+        if ($this->assetLocalization === null) {
+            $this->assetLocalization = new AssetLocalization(
+                $this->manager->getAssetRegistrar()
+            );
+        }
+
+        $this->assetLocalization->addTranslationToHandle(
             $this->handle,
             $objectName,
             $localizationData
         );
 
-        return $this->manager; // Return the manager instance for chaining
+        $this->usedObjectNames[] = $objectName;
+
+        return $this->manager;
     }
 
     /**
@@ -55,14 +84,29 @@ class EnqueueAssetContext
      */
     public function data(?string $objectName, array $data): EnqueueManager
     {
-        (new AssetData(
-            $this->manager->getAssetRegistrar()
-        ))->addDataToHandle(
+        //Create name if not provided
+        if($objectName === null || $objectName === '') {
+            $objectName = ucfirst($this->handle) . 'Data';
+        }
+
+        //Check if name is unique across both translation and data
+        if (in_array($objectName, $this->usedObjectNames, true)) {
+            throw new \RuntimeException("Object name '{$objectName}' must be unique across all assets (translation/data).");
+        }
+        $this->usedObjectNames[] = $objectName;
+
+        if (!isset($this->assetData)) {
+            $this->assetData = new AssetData(
+                $this->manager->getAssetRegistrar()
+            );
+        }
+
+        $this->assetData->addDataToHandle(
             $this->handle,
             $objectName,
             $data
         );
-        
+
         return $this->manager;
     }
 }

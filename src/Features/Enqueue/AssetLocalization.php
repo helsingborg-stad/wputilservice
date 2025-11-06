@@ -9,10 +9,6 @@ namespace WpUtilService\Features\Enqueue;
  */
 class AssetLocalization
 {
-    /**
-     * @var array Track used translation object names to enforce uniqueness
-     */
-    private array $usedTranslationObjectNames = [];
 
     /**
      * @var AssetRegistrar
@@ -44,19 +40,6 @@ class AssetLocalization
      */
     public function addTranslationToHandle(string $handle, ?string $objectName, array $localizationData): void
     {
-        //Create name if not provided
-        if($objectName === null || $objectName === '') {
-            $objectName = ucfirst($handle) . 'Localization';
-        }
-
-        //Check if name is unique
-        if (in_array($objectName, $this->usedTranslationObjectNames, true)) {
-            throw new \RuntimeException("Translation object name '{$objectName}' must be unique across all assets.");
-        }
-
-        //Store as used name
-        $this->usedTranslationObjectNames[] = $objectName;
-
         //Get enqueue functions for asset type
         $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions(
             $this->assetRegistrar->getAssetTypeForHandle($handle)

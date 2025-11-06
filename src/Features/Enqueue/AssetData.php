@@ -44,19 +44,6 @@ class AssetData
      */
     public function addDataToHandle(string $handle, ?string $objectName, array $data): void
     {
-        //Create name if not provided
-        if($objectName === null || $objectName === '') {
-            $objectName = ucfirst($handle) . 'Data';
-        }
-
-        //Check if name is unique
-        if (in_array($objectName, $this->usedDataObjectNames, true)) {
-            throw new \RuntimeException("Data object name '{$objectName}' must be unique across all assets.");
-        }
-
-        //Store as used name
-        $this->usedDataObjectNames[] = $objectName;
-
         //Get enqueue functions for asset type
         $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions(
             $this->assetRegistrar->getAssetTypeForHandle($handle)
