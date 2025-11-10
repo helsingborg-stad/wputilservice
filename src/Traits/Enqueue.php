@@ -73,8 +73,6 @@ trait Enqueue
             );
         }
 
-        var_dump($runtimeContext->getContextOfPath());
-
         //Return configured EnqueueManager
         return (new EnqueueManager(
             $this->getWpService(),
