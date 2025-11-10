@@ -61,8 +61,15 @@ class RuntimeContextManager
     * @param string $path
     * @return RuntimeContextEnum|null Matching context or null if not found.
     */
-    private function getContextOfPath(string $path): ?RuntimeContextEnum
+    public function getContextOfPath(?string $path = null): ?RuntimeContextEnum
     {
+        if ($path === null) {
+            $path = $this->rootPath;
+        }
+        if ($path === null) {
+            throw new \RuntimeException('A path must be given.');
+        }
+
         if (strpos($path, '/' . RuntimeContextEnum::THEME->value . '/') !== false) {
             return RuntimeContextEnum::THEME;
         }
