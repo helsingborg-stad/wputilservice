@@ -16,7 +16,7 @@ class AssetUrlResolver
     /**
      * @var string|null Storage var for the dist path
      */
-    private static ?string $assetsDistPath = null;
+    private ?string $assetsDistPath = null;
 
     /**
      * Constructor.
@@ -35,7 +35,7 @@ class AssetUrlResolver
      */
     public function setDistDirectory(string $distDirectory): void
     {
-        self::$assetsDistPath = rtrim($distDirectory, '/') . '/';
+        $this->assetsDistPath = rtrim($distDirectory, '/') . '/';
     }
 
     /**
@@ -43,7 +43,7 @@ class AssetUrlResolver
      */
     public function getDistDirectory(): ?string
     {
-        return rtrim(self::$assetsDistPath, '/') . '/';
+        return rtrim($this->assetsDistPath, '/') . '/';
     }
 
     /**
@@ -70,7 +70,7 @@ class AssetUrlResolver
 
         $parts = [
             $baseUrl,
-            self::$assetsDistPath,
+            $this->assetsDistPath,
             ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src)
         ];
 
