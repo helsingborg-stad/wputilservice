@@ -95,10 +95,10 @@ class AssetRegistrar
     public function getAssetTypeForHandle(string $handle): string
     {
         // Directly check the suffix of the handle
-        if (str_ends_with($handle, 'Css')) {
+        if (str_ends_with($handle, 'css')) {
             return 'css';
         }
-        if (str_ends_with($handle, 'Js')) {
+        if (str_ends_with($handle, 'js')) {
             return 'js';
         }
 
