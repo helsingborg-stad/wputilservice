@@ -51,8 +51,6 @@ class AssetUrlResolver
      */
     public function getAssetUrl(string $src, ?RuntimeContextEnum $contextMode = null, ?string $rootDirectory = null): string
     {
-    
-
         switch ($contextMode) {
             case RuntimeContextEnum::MUPLUGIN:
                 $baseUrl = $this->muPluginDirUrl($src, $rootDirectory ?? '');
