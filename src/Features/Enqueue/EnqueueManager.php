@@ -105,6 +105,16 @@ class EnqueueManager implements EnqueueManagerInterface
     }
 
     /**
+     * Set hooks configuration and return this instance (fluent).
+     */
+    public function setHooks(array $hooks): self
+    {
+        $this->config['hooks'] = $hooks;
+
+        return $this;
+    }
+
+    /**
      * Adds an asset (CSS/JS) by source path, with optional dependencies, version, and module flag.
      *
      * @param string      $src     Asset source path.
@@ -139,7 +149,7 @@ class EnqueueManager implements EnqueueManagerInterface
         $assetContext = new EnqueueAssetContext($this, $this->lastHandle);
 
         if (!is_null($function) && method_exists($assetContext, $function)) {
-            $assetContext->$function(...$args);
+            $this->maybeCallInHook([$assetContext, $function], ...$args);
             return $this;
         }
 
@@ -186,13 +196,13 @@ class EnqueueManager implements EnqueueManagerInterface
         $module   = $module ?? $this->assetUrlResolver->isModule($src);
         $fullSrc  = $this->assetUrlResolver->getAssetUrl($src);
 
-        $func['register']($handle, $fullSrc, $deps);
+        $this->maybeCallInHook($func['register'], $handle, $fullSrc, $deps, null);
 
         if ($module === true) {
             $this->scriptAttributeManager->addAttributesToScriptTag($handle, ['type' => 'module']);
         }
 
-        $func['enqueue']($handle);
+        $this->maybeCallInHook($func['enqueue'], $handle);
     }
 
     /**
@@ -228,5 +238,24 @@ class EnqueueManager implements EnqueueManagerInterface
             throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
         }
         return $handle;
+    }
+
+    /**
+     * Calls a callback either within configured hooks or directly.
+     *
+     * @param callable $callback
+     * @param mixed ...$args
+     */
+    private function maybeCallInHook(callable $callback, ...$args): void
+    {
+        if ($this->config['hooks'] ?? false) {
+            foreach ($this->config['hooks'] as $hookName => $priority) {
+                add_action($hookName, function() use ($callback, $args) {
+                    call_user_func_array($callback, $args);
+                }, $priority);
+            }
+        } else {
+            call_user_func_array($callback, $args);
+        }
     }
 }

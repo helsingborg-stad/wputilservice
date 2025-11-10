@@ -82,6 +82,9 @@ trait Enqueue
         return (new EnqueueManager(
             $this->getWpService(),
             $cacheBustManager
-        ))->setDistDirectory($enqueueManagerConfig->getDistDirectory());
+        ))
+        ->setDistDirectory($enqueueManagerConfig->getDistDirectory())
+        ->setHooks($enqueueManagerConfig->getHooks());
+    
     }
 }
