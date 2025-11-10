@@ -4,5 +4,4 @@ composer.lock
 .coverage
 /generate.log
 /wordpress
-phpunit-log.xml
-phpunit-testdox.txt
+
