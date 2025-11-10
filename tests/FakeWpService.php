@@ -77,6 +77,11 @@ class FakeWpService extends BaseFakeWpService
         return '/path/to/template';
     }
 
+    public function getSiteUrl(?int $blogId = null, string $path = '', ?string $scheme = null): string
+    {
+        return 'https://test.test/';
+    }
+
     public function addFilter(string $hookName, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
     {
         $this->logCall('addFilter', func_get_args());

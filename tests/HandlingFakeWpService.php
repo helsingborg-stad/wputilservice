@@ -20,6 +20,11 @@ class HandlingFakeWpService extends BaseFakeWpService
         return true;
     }
 
+    public function getSiteUrl(?int $blogId = null, string $path = '', ?string $scheme = null): string
+    {
+        return 'https://test.test/';
+    }
+
     public function wpEnqueueScript(string $handle, string $src = '', array $deps = [], string|bool|null $ver = false, array|bool $args = []): void
     {
         $this->enqueuedScripts[] = $handle;
