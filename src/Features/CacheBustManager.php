@@ -83,7 +83,7 @@ class CacheBustManager
                 }
             }
 
-            throw new \RuntimeException("Failed to retrieve the manifest file.");
+            throw new \RuntimeException("Failed to retrieve the manifest file. Expected at: {$revManifestPath}");
         }
 
         return $revManifest ?: null;
