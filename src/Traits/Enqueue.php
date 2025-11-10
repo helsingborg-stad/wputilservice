@@ -73,10 +73,15 @@ trait Enqueue
             );
         }
 
+        var_dump($runtimeContext->getContextOfPath());
+
         //Return configured EnqueueManager
         return (new EnqueueManager(
             $this->getWpService(),
             $cacheBustManager
-        ))->setDistDirectory($enqueueManagerConfig->getDistDirectory());
+        ))
+            ->setDistDirectory($enqueueManagerConfig->getDistDirectory())
+            ->setContextMode($runtimeContext->getContextOfPath())
+            ->setRootDirectory($enqueueManagerConfig->getRootDirectory());
     }
 }

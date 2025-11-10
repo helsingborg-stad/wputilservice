@@ -7,6 +7,7 @@ namespace WpUtilService\Features\Enqueue;
 use WpService\WpService;
 use WpUtilService\Contracts\Enqueue;
 use WpUtilService\Features\CacheBustManager;
+use WpUtilService\Features\RuntimeContextEnum;
 
 /**
  * Manager for enqueuing assets with fluent API and context chaining.
@@ -95,6 +96,21 @@ class EnqueueManager implements EnqueueManagerInterface
         $this->assetUrlResolver->setDistDirectory($distDirectory);
         $this->config['distDirectory'] = $this->assetUrlResolver->getDistDirectory();
 
+        return $this;
+    }
+
+    /**
+     * Set the context mode and return this instance (fluent).
+     */
+    public function setContextMode(?RuntimeContextEnum $contextMode): self
+    {
+        $this->config['contextMode'] = $contextMode;
+        return $this;
+    }
+
+    public function setRootDirectory(?string $rootDirectory): self
+    {
+        $this->config['rootDirectory'] = $rootDirectory;
         return $this;
     }
 
@@ -206,7 +222,11 @@ class EnqueueManager implements EnqueueManagerInterface
         $fileType = $this->assetRegistrar->getFileType($src, $handle);
         $func     = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
         $module   = $module ?? $this->assetUrlResolver->isModule($src);
-        $fullSrc  = $this->assetUrlResolver->getAssetUrl($src);
+        $fullSrc  = $this->assetUrlResolver->getAssetUrl(
+            $src, 
+            $this->config['contextMode'] ?? null,
+            $this->config['rootDirectory'] ?? null
+        );
 
         $func['register']($handle, $fullSrc, $deps);
 

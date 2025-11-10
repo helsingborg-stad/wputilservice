@@ -6,6 +6,7 @@ namespace WpUtilService\Features\Enqueue;
 
 use WpService\WpService;
 use WpUtilService\Features\CacheBustManager;
+use WpUtilService\Features\RuntimeContextEnum;
 
 /**
  * Resolves asset URLs with optional cache busting.
@@ -48,10 +49,27 @@ class AssetUrlResolver
     /**
      * Resolve full asset URL (with cache-busting if available).
      */
-    public function getAssetUrl(string $src): string
+    public function getAssetUrl(string $src, ?RuntimeContextEnum $contextMode = null, ?string $rootDirectory = null): string
     {
+        switch ($contextMode) {
+            case RuntimeContextEnum::MUPLUGIN:
+                $baseUrl = $this->muPluginDirUrl($src, $rootDirectory ?? '');
+                break;
+            case RuntimeContextEnum::PLUGIN:
+                $baseUrl = $this->wpService->pluginDirUrl($rootDirectory);
+                break;
+            case RuntimeContextEnum::THEME:
+                $baseUrl = $this->wpService->getTemplateDirectoryUri();
+                break;
+            case null:
+                $baseUrl = $this->wpService->getSiteUrl();
+                break;
+            default:
+                throw new \InvalidArgumentException("Invalid context mode '{$contextMode->value}' for asset URL resolution.");
+        }
+
         $parts = [
-            $this->wpService->getTemplateDirectoryUri(),
+            $baseUrl,
             self::$assetsDistPath,
             ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src)
         ];
@@ -63,6 +81,15 @@ class AssetUrlResolver
 
         // Remove debug output
         return $path;
+    }
+
+    /**
+     * MU-Plugin dir URL resolver.
+     */
+    private function muPluginDirUrl(string $src, ?string $rootDirectory = null): string
+    {
+        throw new \RuntimeException('MU-Plugin URL resolution not implemented yet.');
+        return ''; 
     }
 
     /**
