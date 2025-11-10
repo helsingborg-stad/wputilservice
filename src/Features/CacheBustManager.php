@@ -63,7 +63,6 @@ class CacheBustManager
      */
     public function getManifest(): ?array
     {
-        var_dump($this->getManifestFilePath());
         $cacheKey = 'wputilservice-rev-manifest-' . md5($this->getManifestFilePath());
 
         if ($this->getWpService()->wpCacheGet($cacheKey) !== false) {
@@ -93,9 +92,6 @@ class CacheBustManager
     public function name(string $name): string
     {
         $manifest = $this->getManifest();
-
-       // var_dump($manifest, $name);
-
         if (isset($manifest[$name])) {
             return $manifest[$name];
         }
