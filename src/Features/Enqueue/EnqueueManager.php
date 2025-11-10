@@ -265,7 +265,9 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     private function generateHandleFromSrc(string $src): string
     {
-        $handle = ucfirst(pathinfo($src, PATHINFO_FILENAME)) . ucfirst(pathinfo($src, PATHINFO_EXTENSION));
+        $src = strtolower(str_replace(['\\', '/', '_'], '-', ($src)));
+
+        $handle = (pathinfo($src, PATHINFO_FILENAME)) . (pathinfo($src, PATHINFO_EXTENSION));
         if($handle === '') {
             throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
         }
