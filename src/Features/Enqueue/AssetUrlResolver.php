@@ -51,12 +51,14 @@ class AssetUrlResolver
      */
     public function getAssetUrl(string $src, ?RuntimeContextEnum $contextMode = null, ?string $rootDirectory = null): string
     {
+    
+
         switch ($contextMode) {
             case RuntimeContextEnum::MUPLUGIN:
                 $baseUrl = $this->muPluginDirUrl($src, $rootDirectory ?? '');
                 break;
             case RuntimeContextEnum::PLUGIN:
-                $baseUrl = $this->wpService->pluginDirUrl($rootDirectory);
+                $baseUrl = $this->wpService->pluginsUrl('', $rootDirectory . "/.");
                 break;
             case RuntimeContextEnum::THEME:
                 $baseUrl = $this->wpService->getTemplateDirectoryUri();
