@@ -53,7 +53,7 @@ class CacheBustManager
         if (self::$manifestPath === null) {
             throw new \RuntimeException("Dist directory is not set. Please set it using setManifestPath() method.");
         }
-        return self::$manifestPath . self::$manifestName;
+        return "/" . ltrim(self::$manifestPath, '/') . self::$manifestName;
     }
 
     /**
@@ -63,8 +63,6 @@ class CacheBustManager
      */
     public function getManifest(): ?array
     {
-        static $revManifest;
-
         $cacheKey = 'wputilservice-rev-manifest-' . md5($this->getManifestFilePath());
 
         if (!isset($revManifest)) {
