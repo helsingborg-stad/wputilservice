@@ -80,11 +80,17 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function enqueue(
         ?string $rootDirectory = null,
+        ?array  $hooks = null,
         ?string $distDirectory = null,
         ?string $manifestName = null,
         bool $cacheBust = true): EnqueueManager
     {
         return $this;
+    }
+
+    public function getAssetRegistrar(): AssetRegistrar
+    {
+        return $this->assetRegistrar;
     }
 
     /**
@@ -94,6 +100,16 @@ class EnqueueManager implements EnqueueManagerInterface
     {
         $this->assetUrlResolver->setDistDirectory($distDirectory);
         $this->config['distDirectory'] = $this->assetUrlResolver->getDistDirectory();
+
+        return $this;
+    }
+
+    /**
+     * Set hooks configuration and return this instance (fluent).
+     */
+    public function setHooks(array $hooks): self
+    {
+        $this->config['hooks'] = $hooks;
 
         return $this;
     }
@@ -133,7 +149,7 @@ class EnqueueManager implements EnqueueManagerInterface
         $assetContext = new EnqueueAssetContext($this, $this->lastHandle);
 
         if (!is_null($function) && method_exists($assetContext, $function)) {
-            $assetContext->$function(...$args);
+            $this->maybeCallInHook([$assetContext, $function], ...$args);
             return $this;
         }
 
@@ -162,34 +178,6 @@ class EnqueueManager implements EnqueueManagerInterface
     }
 
     /**
-     * Attach translation data to a specific asset handle.
-     *
-     * @param string $handle
-     * @param string $objectName
-     * @param array $localizationData
-     *
-     * @throws \RuntimeException|\InvalidArgumentException
-     */
-    public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
-    {
-        $this->assetLocalization->addTranslationToHandle($handle, $objectName, $localizationData);
-    }
-
-    /**
-     * Attach arbitrary data to a specific asset handle (for extensibility).
-     *
-     * @param string $handle
-     * @param string|null $objectName
-     * @param array $data
-     *
-     * @throws \RuntimeException
-     */
-    public function addDataToHandle(string $handle, ?string $objectName, array $data): void
-    {
-        $this->assetData->addDataToHandle($handle, $objectName, $data);
-    }
-
-    /**
      * Adds an asset (CSS/JS) to the queue of assets to be rendered.
      *
      * @param string $handle
@@ -208,13 +196,13 @@ class EnqueueManager implements EnqueueManagerInterface
         $module   = $module ?? $this->assetUrlResolver->isModule($src);
         $fullSrc  = $this->assetUrlResolver->getAssetUrl($src);
 
-        $func['register']($handle, $fullSrc, $deps);
+        $this->maybeCallInHook($func['register'], $handle, $fullSrc, $deps, null);
 
         if ($module === true) {
             $this->scriptAttributeManager->addAttributesToScriptTag($handle, ['type' => 'module']);
         }
 
-        $func['enqueue']($handle);
+        $this->maybeCallInHook($func['enqueue'], $handle);
     }
 
     /**
@@ -250,5 +238,24 @@ class EnqueueManager implements EnqueueManagerInterface
             throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
         }
         return $handle;
+    }
+
+    /**
+     * Calls a callback either within configured hooks or directly.
+     *
+     * @param callable $callback
+     * @param mixed ...$args
+     */
+    private function maybeCallInHook(callable $callback, ...$args): void
+    {
+        if ($this->config['hooks'] ?? false) {
+            foreach ($this->config['hooks'] as $hookName => $priority) {
+                add_action($hookName, function() use ($callback, $args) {
+                    call_user_func_array($callback, $args);
+                }, $priority);
+            }
+        } else {
+            call_user_func_array($callback, $args);
+        }
     }
 }

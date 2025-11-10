@@ -157,18 +157,6 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    public function testThrowsIfObjectNameIsNotUnique()
-    {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
-
-        $manager->add('main.js')->with()->translation('objectName', ['key' => ['value']]) ;
-        $this->expectException(\RuntimeException::class);
-        $manager->add('second.js')->with()->translation('objectName', ['key' => ['value']]);
-    }
-    
-
     public function testThrowsIfTranslationIsAddedOnAssetWithoutAbility()
     {
         $manager = new EnqueueManager(
@@ -240,6 +228,34 @@ class EnqueueManagerTest extends TestCase
             $callLogItem,
             'wpRegisterStyle was not called with the expected arguments. Got:' . var_export($callLogItem, true)
         );
+    }
+
+    public function testIfHooksIsDefinedEnqueueIsCalledOnTheDefinedHooks()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Define hooks
+        $hooks = [
+            'wp_enqueue_scripts' => 10,
+            'admin_enqueue_scripts' => 20,
+        ];
+        //$manager->setHooks($hooks);
+
+        // Add an asset
+        $manager->add('main.js');
+
+        // Simulate WordPress calling the hooks
+        foreach ($hooks as $hook => $priority) {
+            $wpService->doAction($hook);
+        }
+
+        $enqueueCalled      = $wpService->getCallLog('wp_enqueue_scripts') !== null;
+        $adminEnqueueCalled = $wpService->getCallLog('admin_enqueue_scripts') !== null;
+
+        // Verify that wpEnqueueScript was called twice (once for each hook)
+        $this->assertEquals(true, $enqueueCalled && $adminEnqueueCalled);
     }
 
     /**

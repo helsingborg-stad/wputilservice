@@ -30,6 +30,11 @@ interface EnqueueManagerConfigInterface
    */
   public function setManifestName(string $manifestName): EnqueueManagerConfigInterface;
 
+  /**
+   * Set hooks with their priorities.
+   */
+  public function setHooks(array $hooks): EnqueueManagerConfigInterface;
+
   // Getters
   /**
    * Get cache busting enabled state.
@@ -50,4 +55,9 @@ interface EnqueueManagerConfigInterface
    * Get manifest name.
    */
   public function getManifestName(): string;
+
+  /**
+   * Get hooks with their priorities.
+   */
+  public function getHooks(): ?array;
 }
