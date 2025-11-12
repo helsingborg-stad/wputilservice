@@ -17,9 +17,8 @@ class AssetRegistrar
      * @param WpService $wpService
      */
     public function __construct(
-        private WpService $wpService
-    ) {
-    }
+        private WpService $wpService,
+    ) {}
 
     /**
      * Get the register/enqueue/localize callables for a type.
@@ -33,27 +32,36 @@ class AssetRegistrar
     {
         if ($type === 'js') {
             return [
-                'register' => fn($handle, $src, $deps) =>
-                    $this->wpService->wpRegisterScript($handle, $src, $deps, false, true),
-                'enqueue'  => fn($handle) =>
-                    $this->wpService->wpEnqueueScript($handle),
-                'localize' => fn($handle, $objectName, $data) =>
-                    $this->wpService->wpLocalizeScript($handle, $objectName, $data),
-                'data'    => fn($handle, $objectName, $data) => 
-                    $this->wpService->wpAddInlineScript(
-                        $handle,
-                        'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
-                        'before'
-                    )
+                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterScript(
+                    $handle,
+                    $src,
+                    $deps,
+                    false,
+                    true,
+                ),
+                'enqueue' => fn($handle) => $this->wpService->wpEnqueueScript($handle),
+                'localize' => fn($handle, $objectName, $data) => $this->wpService->wpLocalizeScript(
+                    $handle,
+                    $objectName,
+                    $data,
+                ),
+                'data' => fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
+                    $handle,
+                    'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
+                    'before',
+                ),
             ];
         }
 
         if ($type === 'css') {
             return [
-                'register' => fn($handle, $src, $deps) =>
-                    $this->wpService->wpRegisterStyle($handle, $src, $deps, false),
-                'enqueue'  => fn($handle) =>
-                    $this->wpService->wpEnqueueStyle($handle),
+                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterStyle(
+                    $handle,
+                    $src,
+                    $deps,
+                    false,
+                ),
+                'enqueue' => fn($handle) => $this->wpService->wpEnqueueStyle($handle),
             ];
         }
 
@@ -75,7 +83,7 @@ class AssetRegistrar
 
         if (empty($ext)) {
             throw new \InvalidArgumentException(
-                "Could not determine file extension from source: {$src} using handle: {$handle}"
+                "Could not determine file extension from source: {$src} using handle: {$handle}",
             );
         }
 

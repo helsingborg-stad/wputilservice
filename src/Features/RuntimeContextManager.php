@@ -7,7 +7,7 @@ use WpUtilService\Features\RuntimeContextEnum;
 
 class RuntimeContextManager
 {
-    private ?string $rootPath = null;
+    private null|string $rootPath = null;
 
     /**
      * Set the root path for context detection.
@@ -17,7 +17,7 @@ class RuntimeContextManager
      * @param string $path
      * @return $this
      */
-    public function setPath(string $path) : self
+    public function setPath(string $path): self
     {
         $this->rootPath = $path;
 
@@ -31,7 +31,7 @@ class RuntimeContextManager
      *
      * @return string|null
      */
-    public function getNormalizedRootPath(): ?string
+    public function getNormalizedRootPath(): null|string
     {
         $path = $this->rootPath;
         if (!$path) {
@@ -52,12 +52,12 @@ class RuntimeContextManager
     }
 
     /**
-    * Get the context of the path provided.
-    *
-    * @param string $path
-    * @return RuntimeContextEnum|null Matching context or null if not found.
-    */
-    public function getContextOfPath(?string $path = null): ?RuntimeContextEnum
+     * Get the context of the path provided.
+     *
+     * @param string $path
+     * @return RuntimeContextEnum|null Matching context or null if not found.
+     */
+    public function getContextOfPath(null|string $path = null): null|RuntimeContextEnum
     {
         if ($path === null) {
             $path = $this->rootPath;
@@ -66,13 +66,13 @@ class RuntimeContextManager
             throw new \RuntimeException('A path must be given.');
         }
 
-        if (str_contains($path, '/' . RuntimeContextEnum::THEME->value . '/') ) {
+        if (str_contains($path, '/' . RuntimeContextEnum::THEME->value . '/')) {
             return RuntimeContextEnum::THEME;
         }
-        if (str_contains($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/') ) {
+        if (str_contains($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/')) {
             return RuntimeContextEnum::MUPLUGIN;
         }
-        if (str_contains($path, '/' . RuntimeContextEnum::PLUGIN->value . '/') ) {
+        if (str_contains($path, '/' . RuntimeContextEnum::PLUGIN->value . '/')) {
             return RuntimeContextEnum::PLUGIN;
         }
         return null;

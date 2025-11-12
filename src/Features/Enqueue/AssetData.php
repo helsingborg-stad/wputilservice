@@ -42,10 +42,10 @@ class AssetData
      *
      * @throws \RuntimeException|\InvalidArgumentException
      */
-    public function addDataToHandle(string $handle, ?string $objectName, array $data): void
+    public function addDataToHandle(string $handle, null|string $objectName, array $data): void
     {
         //Create name if not provided
-        if($objectName === null || $objectName === '') {
+        if ($objectName === null || $objectName === '') {
             $objectName = ucfirst($handle) . 'Data';
         }
 
@@ -58,9 +58,9 @@ class AssetData
         $this->usedDataObjectNames[] = $objectName;
 
         //Get enqueue functions for asset type
-        $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions(
-            $this->assetRegistrar->getAssetTypeForHandle($handle)
-        );
+        $funcs = $this->assetRegistrar->getRegisterEnqueueFunctions($this->assetRegistrar->getAssetTypeForHandle(
+            $handle,
+        ));
 
         //Check if data is supported
         if (isset($funcs['data'])) {

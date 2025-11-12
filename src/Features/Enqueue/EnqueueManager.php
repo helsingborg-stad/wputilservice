@@ -22,7 +22,7 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * @var string|null Last added handle name
      */
-    private ?string $lastHandle = null;
+    private null|string $lastHandle = null;
 
     /**
      * @var array Storage for handles that have seen the with() function
@@ -63,16 +63,16 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function __construct(
         private WpService $wpService,
-        private ?CacheBustManager $cacheBustManager = null,
-        array $config = []
+        private null|CacheBustManager $cacheBustManager = null,
+        array $config = [],
     ) {
         $this->config = $config;
-        
+
         // Initialize support classes
-        $this->assetUrlResolver       = new AssetUrlResolver($wpService, $cacheBustManager);
-        $this->assetRegistrar         = new AssetRegistrar($wpService);
-        $this->assetLocalization      = new AssetLocalization($this->assetRegistrar);
-        $this->assetData              = new AssetData($this->assetRegistrar);
+        $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
+        $this->assetRegistrar = new AssetRegistrar($wpService);
+        $this->assetLocalization = new AssetLocalization($this->assetRegistrar);
+        $this->assetData = new AssetData($this->assetRegistrar);
         $this->scriptAttributeManager = new ScriptAttributeManager($wpService);
     }
 
@@ -80,11 +80,11 @@ class EnqueueManager implements EnqueueManagerInterface
      * Get the instance of the EnqueueManager.
      */
     public function enqueue(
-        ?string $rootDirectory = null,
-        ?string $distDirectory = null,
-        ?string $manifestName = null,
-        bool $cacheBust = true): EnqueueManager
-    {
+        null|string $rootDirectory = null,
+        null|string $distDirectory = null,
+        null|string $manifestName = null,
+        bool $cacheBust = true,
+    ): EnqueueManager {
         return $this;
     }
 
@@ -102,13 +102,13 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * Set the context mode and return this instance (fluent).
      */
-    public function setContextMode(?RuntimeContextEnum $contextMode): self
+    public function setContextMode(null|RuntimeContextEnum $contextMode): self
     {
         $this->config['contextMode'] = $contextMode;
         return $this;
     }
 
-    public function setRootDirectory(?string $rootDirectory): self
+    public function setRootDirectory(null|string $rootDirectory): self
     {
         $this->config['rootDirectory'] = $rootDirectory;
         return $this;
@@ -124,7 +124,7 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @return self
      */
-    public function add(string $src, array $deps = [], ?string $version = null, ?bool $module = null): self
+    public function add(string $src, array $deps = [], null|string $version = null, null|bool $module = null): self
     {
         $handle = $this->generateHandleFromSrc($src);
         $this->addAsset($handle, $src, $deps, $module);
@@ -136,10 +136,10 @@ class EnqueueManager implements EnqueueManagerInterface
      * Returns a context object for the last added asset, enabling .with()->... chaining.
      *
      * @param string|null $function Optional specific method to call on the context object (shortcut).
-     * 
+     *
      * @throws \RuntimeException
      */
-    public function with(?string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
+    public function with(null|string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
     {
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
@@ -163,17 +163,18 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @throws \RuntimeException
      */
-    public function and(?string $function = null, ...$args): EnqueueAssetContext
+    public function and(null|string $function = null, ...$args): EnqueueAssetContext
     {
         if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
             throw new \RuntimeException(
                 'Chaining and() is not allowed before with(). Looking for: '
                 . (string) $this->lastHandle
-                . ' In dataset: ' . json_encode($this->handleHasSeenWithFunction)
+                . ' In dataset: '
+                . json_encode($this->handleHasSeenWithFunction),
             );
         }
         $this->with($function, ...$args);
-        
+
         return $this->with();
     }
 
@@ -200,7 +201,7 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @throws \RuntimeException
      */
-    public function addDataToHandle(string $handle, ?string $objectName, array $data): void
+    public function addDataToHandle(string $handle, null|string $objectName, array $data): void
     {
         $this->assetData->addDataToHandle($handle, $objectName, $data);
     }
@@ -215,17 +216,17 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @throws \InvalidArgumentException|\RuntimeException
      */
-    private function addAsset(string $handle, string $src, array $deps = [], ?bool $module = null): void
+    private function addAsset(string $handle, string $src, array $deps = [], null|bool $module = null): void
     {
         $this->validateAddAssetParams($handle, $src);
 
         $fileType = $this->assetRegistrar->getFileType($src, $handle);
-        $func     = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
-        $module   ??= $this->assetUrlResolver->isModule($src);
-        $fullSrc  = $this->assetUrlResolver->getAssetUrl(
-            $src, 
+        $func = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
+        $module ??= $this->assetUrlResolver->isModule($src);
+        $fullSrc = $this->assetUrlResolver->getAssetUrl(
+            $src,
             $this->config['contextMode'] ?? null,
-            $this->config['rootDirectory'] ?? null
+            $this->config['rootDirectory'] ?? null,
         );
 
         $func['register']($handle, $fullSrc, $deps);
@@ -265,10 +266,10 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     private function generateHandleFromSrc(string $src): string
     {
-        $src = strtolower(str_replace(['\\', '/', '_'], '-', ($src)));
+        $src = strtolower(str_replace(['\\', '/', '_'], '-', $src));
 
-        $handle = (pathinfo($src, PATHINFO_FILENAME)) . (pathinfo($src, PATHINFO_EXTENSION));
-        if($handle === '') {
+        $handle = pathinfo($src, PATHINFO_FILENAME) . pathinfo($src, PATHINFO_EXTENSION);
+        if ($handle === '') {
             throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
         }
         return $handle;

@@ -16,7 +16,7 @@ class AssetUrlResolver
     /**
      * @var string|null Storage var for the dist path
      */
-    private ?string $assetsDistPath = null;
+    private null|string $assetsDistPath = null;
 
     /**
      * Constructor.
@@ -26,9 +26,8 @@ class AssetUrlResolver
      */
     public function __construct(
         private WpService $wpService,
-        private ?CacheBustManager $cacheBustManager = null
-    ) {
-    }
+        private null|CacheBustManager $cacheBustManager = null,
+    ) {}
 
     /**
      * Set the dist directory.
@@ -41,7 +40,7 @@ class AssetUrlResolver
     /**
      * Get the dist directory.
      */
-    public function getDistDirectory(): ?string
+    public function getDistDirectory(): null|string
     {
         return rtrim($this->assetsDistPath, '/') . '/';
     }
@@ -49,14 +48,17 @@ class AssetUrlResolver
     /**
      * Resolve full asset URL (with cache-busting if available).
      */
-    public function getAssetUrl(string $src, ?RuntimeContextEnum $contextMode = null, ?string $rootDirectory = null): string
-    {
+    public function getAssetUrl(
+        string $src,
+        null|RuntimeContextEnum $contextMode = null,
+        null|string $rootDirectory = null,
+    ): string {
         switch ($contextMode) {
             case RuntimeContextEnum::MUPLUGIN:
                 $baseUrl = $this->muPluginDirUrl($src, $rootDirectory ?? '');
                 break;
             case RuntimeContextEnum::PLUGIN:
-                $baseUrl = $this->wpService->pluginsUrl('', $rootDirectory . "/.");
+                $baseUrl = $this->wpService->pluginsUrl('', $rootDirectory . '/.');
                 break;
             case RuntimeContextEnum::THEME:
                 $baseUrl = $this->wpService->getTemplateDirectoryUri();
@@ -65,19 +67,21 @@ class AssetUrlResolver
                 $baseUrl = $this->wpService->getSiteUrl();
                 break;
             default:
-                throw new \InvalidArgumentException("Invalid context mode '{$contextMode->value}' for asset URL resolution.");
+                throw new \InvalidArgumentException(
+                    "Invalid context mode '{$contextMode->value}' for asset URL resolution.",
+                );
         }
 
         $parts = [
             $baseUrl,
             $this->assetsDistPath,
-            ($this->cacheBustManager ? $this->cacheBustManager->name($src) : $src)
+            $this->cacheBustManager ? $this->cacheBustManager->name($src) : $src,
         ];
 
         // Trim both leading and trailing slashes from each part
-        $parts  = array_filter($parts, static fn($part) => !empty($part));
-        $parts  = array_map(static fn($part) => trim($part, '/'), $parts);
-        $path   = implode('/', $parts);
+        $parts = array_filter($parts, static fn($part) => !empty($part));
+        $parts = array_map(static fn($part) => trim($part, '/'), $parts);
+        $path = implode('/', $parts);
 
         // Remove debug output
         return $path;
@@ -86,10 +90,10 @@ class AssetUrlResolver
     /**
      * MU-Plugin dir URL resolver.
      */
-    private function muPluginDirUrl(string $src, ?string $rootDirectory = null): string
+    private function muPluginDirUrl(string $src, null|string $rootDirectory = null): string
     {
         throw new \RuntimeException('MU-Plugin URL resolution not implemented yet.');
-        return ''; 
+        return '';
     }
 
     /**
