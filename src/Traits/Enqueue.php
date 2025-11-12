@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Traits;
 
-use WpUtilService\Config\EnqueueManagerConfigInterface;
+
 use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\Features\RuntimeContextManager;

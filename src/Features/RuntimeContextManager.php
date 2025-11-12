@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Features;
 
@@ -65,13 +66,13 @@ class RuntimeContextManager
             throw new \RuntimeException('A path must be given.');
         }
 
-        if (strpos($path, '/' . RuntimeContextEnum::THEME->value . '/') !== false) {
+        if (str_contains($path, '/' . RuntimeContextEnum::THEME->value . '/') ) {
             return RuntimeContextEnum::THEME;
         }
-        if (strpos($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/') !== false) {
+        if (str_contains($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/') ) {
             return RuntimeContextEnum::MUPLUGIN;
         }
-        if (strpos($path, '/' . RuntimeContextEnum::PLUGIN->value . '/') !== false) {
+        if (str_contains($path, '/' . RuntimeContextEnum::PLUGIN->value . '/') ) {
             return RuntimeContextEnum::PLUGIN;
         }
         return null;

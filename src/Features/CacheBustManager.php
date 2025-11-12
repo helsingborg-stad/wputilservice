@@ -1,8 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Features;
 
-use WpService\WpService;
+
 use WpUtilService\WpServiceTrait;
 
 /**

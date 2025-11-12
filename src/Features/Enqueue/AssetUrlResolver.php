@@ -75,8 +75,8 @@ class AssetUrlResolver
         ];
 
         // Trim both leading and trailing slashes from each part
-        $parts  = array_filter($parts, fn($part) => !empty($part));
-        $parts  = array_map(fn($part) => trim($part, '/'), $parts);
+        $parts  = array_filter($parts, static fn($part) => !empty($part));
+        $parts  = array_map(static fn($part) => trim($part, '/'), $parts);
         $path   = implode('/', $parts);
 
         // Remove debug output

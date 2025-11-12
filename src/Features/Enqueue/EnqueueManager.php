@@ -221,7 +221,7 @@ class EnqueueManager implements EnqueueManagerInterface
 
         $fileType = $this->assetRegistrar->getFileType($src, $handle);
         $func     = $this->assetRegistrar->getRegisterEnqueueFunctions($fileType);
-        $module   = $module ?? $this->assetUrlResolver->isModule($src);
+        $module   ??= $this->assetUrlResolver->isModule($src);
         $fullSrc  = $this->assetUrlResolver->getAssetUrl(
             $src, 
             $this->config['contextMode'] ?? null,

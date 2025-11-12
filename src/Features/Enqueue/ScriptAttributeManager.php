@@ -30,7 +30,7 @@ class ScriptAttributeManager
     {
         $this->wpService->addFilter(
             'script_loader_tag',
-            function ($tag, $tagHandle) use ($handle, $attributes) {
+            static function ($tag, $tagHandle) use ($handle, $attributes) {
                 if ($tagHandle === $handle) {
                     foreach ($attributes as $key => $value) {
                         // Insert attribute before src=
