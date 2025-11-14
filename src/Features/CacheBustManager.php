@@ -1,8 +1,8 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Features;
 
-use WpService\WpService;
 use WpUtilService\WpServiceTrait;
 
 /**
@@ -15,8 +15,8 @@ class CacheBustManager
     /**
      * Storage var for the dist path and manifest name
      */
-    private static string $manifestName  = 'manifest.json';
-    private static ?string $manifestPath = '';
+    private string $manifestName = 'manifest.json';
+    private null|string $manifestPath = '';
 
     /**
      * Set the manifest name.
@@ -26,9 +26,9 @@ class CacheBustManager
     public function setManifestName(string $manifestName): self
     {
         if (empty($manifestName) || str_ends_with($manifestName, '.json') === false) {
-            throw new \InvalidArgumentException("Manifest name cannot be empty and must end with .json");
+            throw new \InvalidArgumentException('Manifest name cannot be empty and must end with .json');
         }
-        self::$manifestName = $manifestName;
+        $this->manifestName = $manifestName;
         return $this;
     }
 
@@ -39,7 +39,7 @@ class CacheBustManager
      */
     public function setManifestPath(string $manifestPath): self
     {
-        self::$manifestPath = rtrim($manifestPath, '/') . '/';
+        $this->manifestPath = rtrim($manifestPath, '/') . '/';
         return $this;
     }
 
@@ -50,10 +50,10 @@ class CacheBustManager
      */
     private function getManifestFilePath(): string
     {
-        if (self::$manifestPath === null) {
-            throw new \RuntimeException("Dist directory is not set. Please set it using setManifestPath() method.");
+        if ($this->manifestPath === null) {
+            throw new \RuntimeException('Dist directory is not set. Please set it using setManifestPath() method.');
         }
-        return self::$manifestPath . self::$manifestName;
+        return '/' . ltrim($this->manifestPath, '/') . $this->manifestName;
     }
 
     /**
@@ -61,30 +61,25 @@ class CacheBustManager
      * Supports MU-plugins, plugins, and themes.
      * Caches the manifest in a static variable and in WP object cache.
      */
-    public function getManifest(): ?array
+    public function getManifest(): null|array
     {
-        static $revManifest;
-
         $cacheKey = 'wputilservice-rev-manifest-' . md5($this->getManifestFilePath());
 
-        if (!isset($revManifest)) {
+        if ($this->getWpService()->wpCacheGet($cacheKey) !== false) {
+            $revManifest = $this->getWpService()->wpCacheGet($cacheKey);
+            return $revManifest;
+        }
 
-            if ($this->getWpService()->wpCacheGet($cacheKey) !== false) {
-                $revManifest = $this->getWpService()->wpCacheGet($cacheKey);
+        $revManifestPath = $this->getManifestFilePath();
+        if (file_exists($revManifestPath)) {
+            $revManifest = json_decode(file_get_contents($revManifestPath), true);
+            if (is_array($revManifest)) {
+                $this->getWpService()->wpCacheSet($cacheKey, $revManifest);
                 return $revManifest;
             }
-
-            $revManifestPath = $this->getManifestFilePath();
-            if (file_exists($revManifestPath)) {
-                $revManifest = json_decode(file_get_contents($revManifestPath), true);
-                if (is_array($revManifest)) {
-                    $this->getWpService()->wpCacheSet($cacheKey, $revManifest);
-                    return $revManifest;
-                }
-            }
-
-            throw new \RuntimeException("Failed to retrieve the manifest file.");
         }
+
+        throw new \RuntimeException("Failed to retrieve the manifest file. Expected at: {$revManifestPath}");
 
         return $revManifest ?: null;
     }

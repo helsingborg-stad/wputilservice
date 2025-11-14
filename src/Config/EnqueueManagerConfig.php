@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Config;
 
@@ -9,10 +10,10 @@ use WpUtilService\Config\EnqueueManagerConfigInterface as I;
  */
 class EnqueueManagerConfig implements I
 {
-    protected static bool $cacheBust       = true;
+    protected static bool $cacheBust = true;
     protected static string $distDirectory = '/assets/dist/';
-    protected static string $manifestName  = 'manifest.json';
-    protected static ?string $rootDirectory  = null;
+    protected static string $manifestName = 'manifest.json';
+    protected static null|string $rootDirectory = null;
 
     /**
      * Set cache busting state.
@@ -58,10 +59,12 @@ class EnqueueManagerConfig implements I
     /**
      * Get root directory.
      */
-    public function getRootDirectory(): ?string
+    public function getRootDirectory(): null|string
     {
-        if(is_null(self::$rootDirectory)) {
-            throw new \RuntimeException("Root directory is not set. Please provide it using setRootDirectory() method.");
+        if (is_null(self::$rootDirectory)) {
+            throw new \RuntimeException(
+                'Root directory is not set. Please provide it using setRootDirectory() method.',
+            );
         }
         return self::$rootDirectory;
     }

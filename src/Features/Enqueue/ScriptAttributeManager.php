@@ -17,9 +17,8 @@ class ScriptAttributeManager
      * @param WpService $wpService
      */
     public function __construct(
-        private WpService $wpService
-    ) {
-    }
+        private WpService $wpService,
+    ) {}
 
     /**
      * Add attributes to script tag for given handle.
@@ -30,21 +29,17 @@ class ScriptAttributeManager
     {
         $this->wpService->addFilter(
             'script_loader_tag',
-            function ($tag, $tagHandle) use ($handle, $attributes) {
+            static function ($tag, $tagHandle) use ($handle, $attributes) {
                 if ($tagHandle === $handle) {
                     foreach ($attributes as $key => $value) {
                         // Insert attribute before src=
-                        $tag = str_replace(
-                            ' src=',
-                            sprintf(' %s="%s" src=', esc_attr($key), esc_attr($value)),
-                            $tag
-                        );
+                        $tag = str_replace(' src=', sprintf(' %s="%s" src=', esc_attr($key), esc_attr($value)), $tag);
                     }
                 }
                 return $tag;
             },
             10,
-            2
+            2,
         );
     }
 }

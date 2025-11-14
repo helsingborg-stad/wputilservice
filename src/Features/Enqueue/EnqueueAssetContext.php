@@ -24,7 +24,7 @@ class EnqueueAssetContext
     public function __construct(EnqueueManager $manager, string $handle)
     {
         $this->manager = $manager;
-        $this->handle  = $handle;
+        $this->handle = $handle;
     }
 
     /**
@@ -34,13 +34,9 @@ class EnqueueAssetContext
      * @param array $localizationData Array of localization data, e.g. ['key' => __('value', 'domain')]
      * @return EnqueueManager Chainable manager
      */
-    public function translation(?string $objectName, array $localizationData): EnqueueManager
+    public function translation(null|string $objectName, array $localizationData): EnqueueManager
     {
-        $this->manager->addTranslationToHandle(
-            $this->handle,
-            $objectName,
-            $localizationData
-        );
+        $this->manager->addTranslationToHandle($this->handle, $objectName, $localizationData);
 
         return $this->manager; // Return the manager instance for chaining
     }
@@ -51,7 +47,7 @@ class EnqueueAssetContext
      * @param array $data Arbitrary data array
      * @return EnqueueManager Chainable manager
      */
-    public function data(?string $objectName, array $data): EnqueueManager
+    public function data(null|string $objectName, array $data): EnqueueManager
     {
         $this->manager->addDataToHandle($this->handle, $objectName, $data);
         return $this->manager;

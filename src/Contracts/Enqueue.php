@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace WpUtilService\Contracts;
 
@@ -19,9 +20,9 @@ interface Enqueue
      * @return EnqueueManager
      */
     public function enqueue(
-        ?string $rootDirectory = null,
-        ?string $distDirectory = null,
-        ?string $manifestName = null,
-        bool $cacheBust = true
+        null|string $rootDirectory = null,
+        null|string $distDirectory = null,
+        null|string $manifestName = null,
+        bool $cacheBust = true,
     ): EnqueueManager;
 }

@@ -9,45 +9,45 @@ namespace WpUtilService\Config;
  */
 interface EnqueueManagerConfigInterface
 {
-  // Setters
-  /**
-   * Set cache busting state.
-   */
-  public function setCacheBustState(bool $cacheBust): EnqueueManagerConfigInterface;
+    // Setters
+    /**
+     * Set cache busting state.
+     */
+    public function setCacheBustState(bool $cacheBust): EnqueueManagerConfigInterface;
 
-  /**
-   * Set root directory.
-   */
-  public function setRootDirectory(string $rootDirectory): EnqueueManagerConfigInterface;
+    /**
+     * Set root directory.
+     */
+    public function setRootDirectory(string $rootDirectory): EnqueueManagerConfigInterface;
 
-  /**
-   * Set distribution directory.
-   */
-  public function setDistDirectory(string $distDirectory): EnqueueManagerConfigInterface;
+    /**
+     * Set distribution directory.
+     */
+    public function setDistDirectory(string $distDirectory): EnqueueManagerConfigInterface;
 
-  /**
-   * Set manifest name.
-   */
-  public function setManifestName(string $manifestName): EnqueueManagerConfigInterface;
+    /**
+     * Set manifest name.
+     */
+    public function setManifestName(string $manifestName): EnqueueManagerConfigInterface;
 
-  // Getters
-  /**
-   * Get cache busting enabled state.
-   */
-  public function getIsCacheBustEnabled(): bool;
+    // Getters
+    /**
+     * Get cache busting enabled state.
+     */
+    public function getIsCacheBustEnabled(): bool;
 
-  /**
-   * Get distribution directory.
-   */
-  public function getDistDirectory(): string;
+    /**
+     * Get distribution directory.
+     */
+    public function getDistDirectory(): string;
 
-  /**
-   * Get root directory.
-   */
-  public function getRootDirectory(): ?string;
+    /**
+     * Get root directory.
+     */
+    public function getRootDirectory(): null|string;
 
-  /**
-   * Get manifest name.
-   */
-  public function getManifestName(): string;
+    /**
+     * Get manifest name.
+     */
+    public function getManifestName(): string;
 }

@@ -207,7 +207,7 @@ class EnqueueManagerTest extends TestCase
         $this->assertContains(
             [
                 'MainJs',
-                'path/to/template/path/to/dist/main.js',
+                'https://test.test/path/to/dist/main.js',
                 ['jquery'],
                 false,
                 true,
@@ -233,7 +233,7 @@ class EnqueueManagerTest extends TestCase
         $this->assertContains(
             [
                 'MainCss',
-                'path/to/template/path/to/dist/main.css',
+                'https://test.test/path/to/dist/main.css',
                 ['bootstrap'],
                 false
             ],
