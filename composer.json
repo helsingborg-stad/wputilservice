@@ -34,6 +34,7 @@
         "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --testdox",
         "lint": "vendor/bin/mago lint",
         "fix": "vendor/bin/mago lint --format-after-fix --fix",
+        "format": "vendor/bin/mago fmt",
         "stan": "php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon"
     },
     "config": {

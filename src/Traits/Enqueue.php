@@ -54,7 +54,7 @@ trait Enqueue
         $cacheBust !== null ? $enqueueManagerConfig->setCacheBustState($cacheBust) : null;
 
         //Setup runtime context
-        $runtimeContext = new RuntimeContextManager($this->getWpService())->setPath($enqueueManagerConfig->getRootDirectory());
+        $runtimeContext = (new RuntimeContextManager($this->getWpService()))->setPath($enqueueManagerConfig->getRootDirectory());
 
         // Setup cache bust manager, if enabled
         $cacheBustManager = null;
@@ -69,7 +69,7 @@ trait Enqueue
         }
 
         //Return configured EnqueueManager
-        return new EnqueueManager($this->getWpService(), $cacheBustManager)
+        return (new EnqueueManager($this->getWpService(), $cacheBustManager))
             ->setDistDirectory($enqueueManagerConfig->getDistDirectory())
             ->setContextMode($runtimeContext->getContextOfPath())
             ->setRootDirectory($enqueueManagerConfig->getRootDirectory());
