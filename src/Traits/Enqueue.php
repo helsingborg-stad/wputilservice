@@ -44,34 +44,66 @@ trait Enqueue
         null|string $manifestName = null,
         bool $cacheBust = true,
     ): EnqueueManager {
-        //Config
-        $enqueueManagerConfig = new \WpUtilService\Config\EnqueueManagerConfig();
+        $config = $this->buildEnqueueConfig($rootDirectory, $distDirectory, $manifestName, $cacheBust);
+        $runtimeContext = $this->createRuntimeContext($config->getRootDirectory());
+        $cacheBustManager = $this->createCacheBustManager($config, $runtimeContext);
 
-        // Apply provided config overrides
-        $rootDirectory !== null ? $enqueueManagerConfig->setRootDirectory($rootDirectory) : null;
-        $distDirectory !== null ? $enqueueManagerConfig->setDistDirectory($distDirectory) : null;
-        $manifestName !== null ? $enqueueManagerConfig->setManifestName($manifestName) : null;
-        $cacheBust !== null ? $enqueueManagerConfig->setCacheBustState($cacheBust) : null;
+        return (new EnqueueManager($this->getWpService(), $cacheBustManager))
+            ->setDistDirectory($config->getDistDirectory())
+            ->setContextMode($runtimeContext->getContextOfPath())
+            ->setRootDirectory($config->getRootDirectory());
+    }
 
-        //Setup runtime context
-        $runtimeContext = (new RuntimeContextManager($this->getWpService()))->setPath($enqueueManagerConfig->getRootDirectory());
+    /**
+     * Build configuration for EnqueueManager.
+     */
+    private function buildEnqueueConfig(
+        null|string $rootDirectory,
+        null|string $distDirectory,
+        null|string $manifestName,
+        bool $cacheBust
+    ): \WpUtilService\Config\EnqueueManagerConfig {
+        $config = new \WpUtilService\Config\EnqueueManagerConfig();
 
-        // Setup cache bust manager, if enabled
-        $cacheBustManager = null;
-        if ($enqueueManagerConfig->getIsCacheBustEnabled()) {
-            $cacheBustManager = new CacheBustManager($this->getWpService());
+        if ($rootDirectory !== null) {
+            $config->setRootDirectory($rootDirectory);
+        }
+        if ($distDirectory !== null) {
+            $config->setDistDirectory($distDirectory);
+        }
+        if ($manifestName !== null) {
+            $config->setManifestName($manifestName);
+        }
+        $config->setCacheBustState($cacheBust);
 
-            $cacheBustManager->setManifestPath(
-                $runtimeContext->getNormalizedRootPath() . $enqueueManagerConfig->getDistDirectory(),
-            );
+        return $config;
+    }
 
-            $cacheBustManager->setManifestName($enqueueManagerConfig->getManifestName());
+    /**
+     * Create runtime context from root directory.
+     */
+    private function createRuntimeContext(string $rootDirectory): RuntimeContextManager
+    {
+        return (new RuntimeContextManager())->setPath($rootDirectory);
+    }
+
+    /**
+     * Create cache bust manager if enabled.
+     */
+    private function createCacheBustManager(
+        \WpUtilService\Config\EnqueueManagerConfig $config,
+        RuntimeContextManager $runtimeContext
+    ): null|CacheBustManager {
+        if (!$config->getIsCacheBustEnabled()) {
+            return null;
         }
 
-        //Return configured EnqueueManager
-        return (new EnqueueManager($this->getWpService(), $cacheBustManager))
-            ->setDistDirectory($enqueueManagerConfig->getDistDirectory())
-            ->setContextMode($runtimeContext->getContextOfPath())
-            ->setRootDirectory($enqueueManagerConfig->getRootDirectory());
+        $cacheBustManager = new CacheBustManager($this->getWpService());
+        $cacheBustManager->setManifestPath(
+            $runtimeContext->getNormalizedRootPath() . $config->getDistDirectory()
+        );
+        $cacheBustManager->setManifestName($config->getManifestName());
+
+        return $cacheBustManager;
     }
 }

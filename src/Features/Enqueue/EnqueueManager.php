@@ -40,14 +40,9 @@ class EnqueueManager implements EnqueueManagerInterface
     private AssetRegistrar $assetRegistrar;
 
     /**
-     * @var AssetLocalization
+     * @var AssetMetadata
      */
-    private AssetLocalization $assetLocalization;
-
-    /**
-     * @var AssetData
-     */
-    private AssetData $assetData;
+    private AssetMetadata $assetMetadata;
 
     /**
      * @var ScriptAttributeManager
@@ -71,8 +66,7 @@ class EnqueueManager implements EnqueueManagerInterface
         // Initialize support classes
         $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
         $this->assetRegistrar = new AssetRegistrar($wpService);
-        $this->assetLocalization = new AssetLocalization($this->assetRegistrar);
-        $this->assetData = new AssetData($this->assetRegistrar);
+        $this->assetMetadata = new AssetMetadata($this->assetRegistrar);
         $this->scriptAttributeManager = new ScriptAttributeManager($wpService);
     }
 
@@ -189,7 +183,7 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function addTranslationToHandle(string $handle, string $objectName, array $localizationData): void
     {
-        $this->assetLocalization->addTranslationToHandle($handle, $objectName, $localizationData);
+        $this->assetMetadata->addTranslation($handle, $objectName, $localizationData);
     }
 
     /**
@@ -203,7 +197,7 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function addDataToHandle(string $handle, null|string $objectName, array $data): void
     {
-        $this->assetData->addDataToHandle($handle, $objectName, $data);
+        $this->assetMetadata->addData($handle, $objectName, $data);
     }
 
     /**

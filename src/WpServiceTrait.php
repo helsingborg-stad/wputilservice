@@ -7,9 +7,10 @@ use WpService\WpService;
 
 trait WpServiceTrait
 {
-    public function __construct(
-        private WpService $wpService,
-    ) {
+    private WpService $wpService;
+
+    protected function setWpService(WpService $wpService): void
+    {
         $this->wpService = $wpService;
     }
 

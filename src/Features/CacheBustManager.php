@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace WpUtilService\Features;
 
+use WpService\WpService;
 use WpUtilService\WpServiceTrait;
 
 /**
@@ -17,6 +18,11 @@ class CacheBustManager
      */
     private string $manifestName = 'manifest.json';
     private null|string $manifestPath = '';
+
+    public function __construct(WpService $wpService)
+    {
+        $this->setWpService($wpService);
+    }
 
     /**
      * Set the manifest name.
