@@ -30,42 +30,54 @@ class AssetRegistrar
      */
     public function getRegisterEnqueueFunctions(string $type): array
     {
-        if ($type === 'js') {
-            return [
-                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterScript(
-                    $handle,
-                    $src,
-                    $deps,
-                    false,
-                    true,
-                ),
-                'enqueue' => fn($handle) => $this->wpService->wpEnqueueScript($handle),
-                'localize' => fn($handle, $objectName, $data) => $this->wpService->wpLocalizeScript(
-                    $handle,
-                    $objectName,
-                    $data,
-                ),
-                'data' => fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
-                    $handle,
-                    'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
-                    'before',
-                ),
-            ];
-        }
+        return match ($type) {
+            'js' => $this->getJavaScriptFunctions(),
+            'css' => $this->getStylesheetFunctions(),
+            default => throw new \InvalidArgumentException('Invalid type provided. Use "js" or "css".'),
+        };
+    }
 
-        if ($type === 'css') {
-            return [
-                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterStyle(
-                    $handle,
-                    $src,
-                    $deps,
-                    false,
-                ),
-                'enqueue' => fn($handle) => $this->wpService->wpEnqueueStyle($handle),
-            ];
-        }
+    /**
+     * Get JavaScript-specific WordPress functions.
+     */
+    private function getJavaScriptFunctions(): array
+    {
+        return [
+            'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterScript(
+                $handle,
+                $src,
+                $deps,
+                false,
+                true,
+            ),
+            'enqueue' => fn($handle) => $this->wpService->wpEnqueueScript($handle),
+            'localize' => fn($handle, $objectName, $data) => $this->wpService->wpLocalizeScript(
+                $handle,
+                $objectName,
+                $data,
+            ),
+            'data' => fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
+                $handle,
+                'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
+                'before',
+            ),
+        ];
+    }
 
-        throw new \InvalidArgumentException('Invalid type provided. Use "js" or "css".');
+    /**
+     * Get CSS-specific WordPress functions.
+     */
+    private function getStylesheetFunctions(): array
+    {
+        return [
+            'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterStyle(
+                $handle,
+                $src,
+                $deps,
+                false,
+            ),
+            'enqueue' => fn($handle) => $this->wpService->wpEnqueueStyle($handle),
+        ];
     }
 
     /**
