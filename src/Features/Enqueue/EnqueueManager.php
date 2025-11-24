@@ -88,6 +88,12 @@ class EnqueueManager implements EnqueueManagerInterface
         return $this;
     }
 
+    public function setEnqueueHook(string $hook): self
+    {
+        $this->assetRegistrar->setEnqueueHook($hook);
+        return $this;
+    }
+
     /**
      * Set the dist directory and return this instance (fluent).
      */
@@ -176,6 +182,18 @@ class EnqueueManager implements EnqueueManagerInterface
         $this->with($function, ...$args);
 
         return $this->with();
+    }
+
+    /**
+     * What hook to attach to when rendering assets.
+     */
+    public function on(string $hook): EnqueueManager
+    {
+        if ($this->lastHandle !== null) {
+            throw new \RuntimeException('The on() method must be called before adding any assets with add().');
+        }
+        $this->assetRegistrar->setEnqueueHook($hook);
+        return $this;
     }
 
     /**

@@ -12,6 +12,11 @@ use WpService\WpService;
 class AssetRegistrar
 {
     /**
+     * @var enqueueHook The hook on which to enqueue assets.
+     */
+    private null|string $enqueueHook = null;
+
+    /**
      * Constructor.
      *
      * @param WpService $wpService
@@ -30,38 +35,41 @@ class AssetRegistrar
      */
     public function getRegisterEnqueueFunctions(string $type): array
     {
+        // Wrap functions to optionally hook into WordPress actions
+        $wrapWithAction = function (callable $fn) {
+            if ($this->enqueueHook !== null) {
+                return function (...$args) use ($fn) {
+                    $this->wpService->addAction($this->enqueueHook, function () use ($fn, $args) {
+                        $fn(...$args);
+                    });
+                };
+            }
+            return $fn;
+        };
+
         if ($type === 'js') {
             return [
-                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterScript(
-                    $handle,
-                    $src,
-                    $deps,
-                    false,
-                    true,
+                'register' => $wrapWithAction(
+                    fn($handle, $src, $deps) => $this->wpService->wpRegisterScript($handle, $src, $deps, false, true),
                 ),
-                'enqueue' => fn($handle) => $this->wpService->wpEnqueueScript($handle),
-                'localize' => fn($handle, $objectName, $data) => $this->wpService->wpLocalizeScript(
-                    $handle,
-                    $objectName,
-                    $data,
+                'enqueue' => $wrapWithAction(fn($handle) => $this->wpService->wpEnqueueScript($handle)),
+                'localize' => $wrapWithAction(
+                    fn($handle, $objectName, $data) => $this->wpService->wpLocalizeScript($handle, $objectName, $data),
                 ),
-                'data' => fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
+                'data' => $wrapWithAction(fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
                     $handle,
                     'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
                     'before',
-                ),
+                )),
             ];
         }
 
         if ($type === 'css') {
             return [
-                'register' => fn($handle, $src, $deps) => $this->wpService->wpRegisterStyle(
-                    $handle,
-                    $src,
-                    $deps,
-                    false,
+                'register' => $wrapWithAction(
+                    fn($handle, $src, $deps) => $this->wpService->wpRegisterStyle($handle, $src, $deps, false),
                 ),
-                'enqueue' => fn($handle) => $this->wpService->wpEnqueueStyle($handle),
+                'enqueue' => $wrapWithAction(fn($handle) => $this->wpService->wpEnqueueStyle($handle)),
             ];
         }
 
@@ -112,5 +120,38 @@ class AssetRegistrar
 
         // Throw an exception if the type cannot be determined
         throw new \InvalidArgumentException("Cannot determine asset type for handle: {$handle}");
+    }
+
+    /**
+     * Set the hook on which to enqueue assets.
+     *
+     * @param string $hook
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function setEnqueueHook(string $hook): void
+    {
+        if ($hook === '') {
+            throw new \InvalidArgumentException('Enqueue hook cannot be empty.');
+        }
+
+        $allowed = [
+            'wp_enqueue_scripts',
+            'admin_enqueue_scripts',
+            'login_enqueue_scripts',
+            'enqueue_block_assets',
+            'enqueue_block_editor_assets',
+        ];
+
+        $isAllowed =
+            in_array($hook, $allowed, true)
+            || str_starts_with($hook, 'admin_print_scripts-')
+            || str_starts_with($hook, 'admin_print_styles-');
+
+        if (!$isAllowed) {
+            throw new \InvalidArgumentException("Invalid enqueue hook: {$hook}");
+        }
+
+        $this->enqueueHook = $hook;
     }
 }
