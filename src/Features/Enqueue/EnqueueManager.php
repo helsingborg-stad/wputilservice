@@ -193,7 +193,8 @@ class EnqueueManager implements EnqueueManagerInterface
     public function on(string $hook, int $priority = 10): EnqueueManager
     {
         if ($this->lastHandle !== null) {
-            throw new \RuntimeException('The on() method must be called before adding any assets with add().');
+            throw new \RuntimeException('The on() method must be called before adding any assets with add(). 
+                Already added: ' . $this->lastHandle);
         }
         $this->assetRegistrar->setEnqueueHook($hook, $priority);
         return $this;
@@ -220,7 +221,7 @@ class EnqueueManager implements EnqueueManagerInterface
      * @param string|null $objectName
      * @param array $data
      *
-     * @throws \RuntimeException
+     * @throws \RuntimeExceptionrd
      */
     public function addDataToHandle(string $handle, null|string $objectName, array $data): void
     {
