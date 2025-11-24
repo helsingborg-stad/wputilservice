@@ -88,9 +88,12 @@ class EnqueueManager implements EnqueueManagerInterface
         return $this;
     }
 
-    public function setEnqueueHook(string $hook): self
+    /**
+     * Set the hook on which to enqueue assets.
+     */
+    public function setEnqueueHook(string $hook, int $priority = 10): self
     {
-        $this->assetRegistrar->setEnqueueHook($hook);
+        $this->assetRegistrar->setEnqueueHook($hook, $priority);
         return $this;
     }
 
@@ -187,12 +190,12 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * What hook to attach to when rendering assets.
      */
-    public function on(string $hook): EnqueueManager
+    public function on(string $hook, int $priority = 10): EnqueueManager
     {
         if ($this->lastHandle !== null) {
             throw new \RuntimeException('The on() method must be called before adding any assets with add().');
         }
-        $this->assetRegistrar->setEnqueueHook($hook);
+        $this->assetRegistrar->setEnqueueHook($hook, $priority);
         return $this;
     }
 

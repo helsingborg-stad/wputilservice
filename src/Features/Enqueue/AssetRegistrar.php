@@ -17,6 +17,11 @@ class AssetRegistrar
     private null|string $enqueueHook = null;
 
     /**
+     * @var enqueuePriority The priority for the enqueue hook.
+     */
+    private int $enqueuePriority = 10;
+
+    /**
      * Constructor.
      *
      * @param WpService $wpService
@@ -39,9 +44,13 @@ class AssetRegistrar
         $wrapWithAction = function (callable $fn) {
             if ($this->enqueueHook !== null) {
                 return function (...$args) use ($fn) {
-                    $this->wpService->addAction($this->enqueueHook, function () use ($fn, $args) {
-                        $fn(...$args);
-                    });
+                    $this->wpService->addAction(
+                        $this->enqueueHook,
+                        function () use ($fn, $args) {
+                            $fn(...$args);
+                        },
+                        $this->enqueuePriority,
+                    );
                 };
             }
             return $fn;
@@ -129,7 +138,7 @@ class AssetRegistrar
      *
      * @throws \InvalidArgumentException
      */
-    public function setEnqueueHook(string $hook): void
+    public function setEnqueueHook(string $hook, int $priority = 10): void
     {
         if ($hook === '') {
             throw new \InvalidArgumentException('Enqueue hook cannot be empty.');
@@ -153,5 +162,6 @@ class AssetRegistrar
         }
 
         $this->enqueueHook = $hook;
+        $this->enqueuePriority = $priority;
     }
 }
