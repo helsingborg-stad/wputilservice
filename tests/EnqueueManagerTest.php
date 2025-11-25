@@ -128,24 +128,11 @@ class EnqueueManagerTest extends TestCase
         $manager->add('main.js', ['jquery'], '1.0.0', true)->on('somehook', 20);
     }
 
-    public function testOnThrowsIfNotUsedFirst()
+    public function testHookIsAddedWhenUsingOnStatement()
     {
-        $manager = new EnqueueManager($this->getWpService());
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
         $manager->setDistDirectory('/path/to/dist');
-
-        $this->expectException(\InvalidArgumentException::class);
-        $manager->add('main.js', ['jquery'], '1.0.0', true)->on('wp_enqueue_script', 20);
-    }
-
-    public function testOnNotThowsWhenIsInSeparateChains()
-    {
-        $manager = new EnqueueManager($this->getWpService());
-        $manager->setDistDirectory('/path/to/dist');
-
-        // Second chain without on()
-        $manager->add('second.js', [], '1.0.0', true)->with()->data(null, [
-            'id' => 1,
-        ]);
 
         // First chain with on()
         $manager->on('wp_enqueue_scripts', 20)->add(
@@ -157,7 +144,49 @@ class EnqueueManagerTest extends TestCase
             'localization_a' => ['Test'],
         ]);
 
-        $this->assertTrue(true);
+        // Check that only main.js is hooked
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        $found = false;
+        foreach ($callLogAddAction as $call) {
+            if (
+                $call[0] === 'wp_enqueue_scripts'
+                && is_object($call[1])
+                && $call[1] instanceof \Closure
+                && $call[2] === 20
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'The enqueueAssets hook was not added correctly.');
+    }
+
+    public function testOnNotAffectingSequentialInstances()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->translation('objectName', [
+            'localization_a' => ['Test'],
+        ]);
+
+        // Second chain without on()
+        $manager->add('second.js', [], '1.0.0', true)->with()->data(null, [
+            'id' => 1,
+        ]);
+
+        //Test that second chain's asset is not hooked at all
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        foreach ($callLogAddAction as $call) {
+            $this->assertNotEquals('secondjs', $call[0] ?? null, 'second.js should not be hooked at all.');
+        }
     }
 
     public function testWithThrowsIfNoAssetAdded()

@@ -37,7 +37,7 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * @var AssetRegistrar
      */
-    private AssetRegistrar $assetRegistrar;
+    public AssetRegistrar $assetRegistrar;
 
     /**
      * @var AssetLocalization
@@ -192,12 +192,10 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function on(string $hook, int $priority = 10): EnqueueManager
     {
-        if ($this->lastHandle !== null) {
-            $this->lastHandle = null;
-            $this->handleHasSeenWithFunction = [];
-        }
-        $this->assetRegistrar->setEnqueueHook($hook, $priority);
-        return $this;
+        $clone = clone $this;
+        $clone->lastHandle = null;
+        $clone->assetRegistrar->setEnqueueHook($hook, $priority);
+        return $clone;
     }
 
     /**
