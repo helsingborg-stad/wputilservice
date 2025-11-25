@@ -128,7 +128,7 @@ class EnqueueManagerTest extends TestCase
         $manager->add('main.js', ['jquery'], '1.0.0', true)->on('somehook', 20);
     }
 
-    public function testHookIsAddedWhenUsingOnStatement()
+    public function testHookIsAddedWhenUsingOnStatementForJsAsset()
     {
         $wpService = $this->getWpService();
         $manager = new EnqueueManager($wpService);
@@ -144,7 +144,7 @@ class EnqueueManagerTest extends TestCase
             'localization_a' => ['Test'],
         ]);
 
-        // Check that only main.js is hooked
+        //Test that on() added the hook correctly
         $callLogAddAction = $wpService->getCallLog('addAction');
         $found = false;
         foreach ($callLogAddAction as $call) {
@@ -153,6 +153,32 @@ class EnqueueManagerTest extends TestCase
                 && is_object($call[1])
                 && $call[1] instanceof \Closure
                 && $call[2] === 20
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'The enqueueAssets hook was not added correctly.');
+    }
+
+    public function testHookIsAddedWhenUsingOnStatementForCssAsset()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 30)->add('main.css');
+
+        //Test that on() added the hook correctly
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        $found = false;
+        foreach ($callLogAddAction as $call) {
+            if (
+                $call[0] === 'wp_enqueue_scripts'
+                && is_object($call[1])
+                && $call[1] instanceof \Closure
+                && $call[2] === 30
             ) {
                 $found = true;
                 break;
