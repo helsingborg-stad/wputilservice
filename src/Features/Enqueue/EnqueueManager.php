@@ -188,7 +188,11 @@ class EnqueueManager implements EnqueueManagerInterface
     }
 
     /**
-     * What hook to attach to when rendering assets.
+     * Set the hook on which to attach when rendering assets.
+     *
+     * @param string $hook The WordPress hook name
+     * @param int $priority The priority for the hook (default: 10)
+     * @return EnqueueManager A cloned instance with the hook configured
      */
     public function on(string $hook, int $priority = 10): EnqueueManager
     {
