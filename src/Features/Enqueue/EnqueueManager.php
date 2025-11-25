@@ -90,6 +90,10 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Set the hook on which to enqueue assets.
+     *
+     * @param string $hook The WordPress hook name
+     * @param int $priority The priority for the hook (default: 10)
+     * @return self
      */
     public function setEnqueueHook(string $hook, int $priority = 10): self
     {
@@ -99,6 +103,9 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Set the dist directory and return this instance (fluent).
+     *
+     * @param string $distDirectory
+     * @return self
      */
     public function setDistDirectory(string $distDirectory): self
     {
@@ -110,6 +117,9 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Set the context mode and return this instance (fluent).
+     *
+     * @param RuntimeContextEnum|null $contextMode
+     * @return self
      */
     public function setContextMode(null|RuntimeContextEnum $contextMode): self
     {
@@ -117,6 +127,12 @@ class EnqueueManager implements EnqueueManagerInterface
         return $this;
     }
 
+    /**
+     * Set the root directory and return this instance (fluent).
+     *
+     * @param string|null $rootDirectory
+     * @return self
+     */
     public function setRootDirectory(null|string $rootDirectory): self
     {
         $this->config['rootDirectory'] = $rootDirectory;
