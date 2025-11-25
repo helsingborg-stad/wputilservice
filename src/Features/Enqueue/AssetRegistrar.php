@@ -12,6 +12,15 @@ use WpService\WpService;
 class AssetRegistrar
 {
     /**
+     * Accumulate asset operations to be executed when the hook fires.
+     */
+    private array $pendingAssetOps = [];
+
+    /**
+     * Flag to ensure the hook is only registered once.
+     */
+    private bool $hookRegistered = false;
+    /**
      * @var enqueueHook The hook on which to enqueue assets.
      */
     private null|string $enqueueHook = null;
@@ -44,13 +53,22 @@ class AssetRegistrar
         $wrapWithAction = function (callable $fn) {
             if ($this->enqueueHook !== null) {
                 return function (...$args) use ($fn) {
-                    $this->wpService->addAction(
-                        $this->enqueueHook,
-                        function () use ($fn, $args) {
-                            $fn(...$args);
-                        },
-                        $this->enqueuePriority,
-                    );
+                    $this->pendingAssetOps[] = function () use ($fn, $args) {
+                        $fn(...$args);
+                    };
+                    if (!$this->hookRegistered) {
+                        $this->wpService->addAction(
+                            $this->enqueueHook,
+                            function () {
+                                foreach ($this->pendingAssetOps as $op) {
+                                    $op();
+                                }
+                                $this->pendingAssetOps = [];
+                            },
+                            $this->enqueuePriority,
+                        );
+                        $this->hookRegistered = true;
+                    }
                 };
             }
             return $fn;
