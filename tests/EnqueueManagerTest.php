@@ -215,6 +215,26 @@ class EnqueueManagerTest extends TestCase
         }
     }
 
+    public function testAdminPrintScriptsHookIsAccepted()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Should not throw
+        $result = $manager->on('admin_print_scripts-settings_page', 10);
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testAdminPrintStylesHookIsAccepted()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Should not throw
+        $result = $manager->on('admin_print_styles-settings_page', 10);
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
     public function testWithThrowsIfNoAssetAdded()
     {
         $manager = new EnqueueManager($this->getWpService());
