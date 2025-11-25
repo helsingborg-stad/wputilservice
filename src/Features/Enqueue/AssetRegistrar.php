@@ -140,10 +140,6 @@ class AssetRegistrar
      */
     public function setEnqueueHook(string $hook, int $priority = 10): void
     {
-        if ($hook === '') {
-            throw new \InvalidArgumentException('Enqueue hook cannot be empty.');
-        }
-
         $allowed = [
             'wp_enqueue_scripts',
             'admin_enqueue_scripts',
@@ -158,7 +154,7 @@ class AssetRegistrar
             || str_starts_with($hook, 'admin_print_styles-');
 
         if (!$isAllowed) {
-            throw new \InvalidArgumentException("Invalid enqueue hook: {$hook}");
+            throw new \InvalidArgumentException("Invalid enqueue hook: {($hook ?: 'EMPTY_HOOK_NAME')}");
         }
 
         $this->enqueueHook = $hook;
