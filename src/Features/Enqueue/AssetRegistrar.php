@@ -135,6 +135,7 @@ class AssetRegistrar
      * Set the hook on which to enqueue assets.
      *
      * @param string $hook
+     * @param int $priority The priority for the hook (default: 10)
      *
      * @throws \InvalidArgumentException
      */
