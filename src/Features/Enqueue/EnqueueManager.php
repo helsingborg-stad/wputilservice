@@ -294,4 +294,16 @@ class EnqueueManager implements EnqueueManagerInterface
         }
         return $handle;
     }
+
+    /**
+     * Clone support to ensure deep copies of internal objects.
+     */
+    public function __clone()
+    {
+        $this->assetRegistrar = clone $this->assetRegistrar;
+        $this->assetLocalization = clone $this->assetLocalization;
+        $this->assetData = clone $this->assetData;
+        $this->assetUrlResolver = clone $this->assetUrlResolver;
+        $this->scriptAttributeManager = clone $this->scriptAttributeManager;
+    }
 }
