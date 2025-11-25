@@ -51,7 +51,7 @@ $wpUtilService = new WpUtilService($wpService);
 ```php
 $wpUtilService
     ->enqueue(__DIR__)
-    ->on('wp_enqueue_script', 20)
+    ->on('wp_enqueue_scripts', 20)
     ->add('main.js', ['jquery'])
     ->with()->translation(
         'objectName',
