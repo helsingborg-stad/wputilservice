@@ -37,7 +37,7 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * @var AssetRegistrar
      */
-    public AssetRegistrar $assetRegistrar;
+    private AssetRegistrar $assetRegistrar;
 
     /**
      * @var AssetLocalization
