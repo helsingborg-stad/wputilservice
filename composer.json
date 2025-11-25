@@ -35,7 +35,8 @@
         "lint": "vendor/bin/mago lint",
         "fix": "vendor/bin/mago lint --format-after-fix --fix",
         "format": "vendor/bin/mago fmt",
-        "stan": "php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon"
+        "stan": "php -d memory_limit=512M vendor/bin/phpstan analyse --configuration=phpstan.neon",
+        "test:watch": "bash -c \"find tests -type f -name '*.php' | entr -c sh -c './vendor/bin/phpunit --testdox --no-coverage'\""
     },
     "config": {
         "allow-plugins": {

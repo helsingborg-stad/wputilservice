@@ -137,6 +137,29 @@ class EnqueueManagerTest extends TestCase
         $manager->add('main.js', ['jquery'], '1.0.0', true)->on('wp_enqueue_script', 20);
     }
 
+    public function testOnNotThowsWhenIsInSeparateChains()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Second chain without on()
+        $manager->add('second.js', [], '1.0.0', true)->with()->data(null, [
+            'id' => 1,
+        ]);
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->translation('objectName', [
+            'localization_a' => ['Test'],
+        ]);
+
+        $this->assertTrue(true);
+    }
+
     public function testWithThrowsIfNoAssetAdded()
     {
         $manager = new EnqueueManager($this->getWpService());
