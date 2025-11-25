@@ -67,7 +67,7 @@ class AssetRegistrar
                 ),
                 'data' => $wrapWithAction(fn($handle, $objectName, $data) => $this->wpService->wpAddInlineScript(
                     $handle,
-                    'var ' . $objectName . ' = ' . wp_json_encode($data) . ';',
+                    'var ' . $objectName . ' = ' . $this->wpService->wpJsonEncode($data) . ';',
                     'before',
                 )),
             ];
