@@ -40,7 +40,7 @@ $wpUtilService = new WpUtilService($wpService);
 
 ### Enqueue Scripts
 - `enqueue()` returns an `EnqueueManager`.
-- `on()` wraps the folling functions inside a hook (eg. wp_enqueue_script). Only documented hooks are allowed. 
+- `on()` wraps the following functions inside a hook (eg. wp_enqueue_script). Only documented hooks are allowed. 
 - `add()` enqueues a script.
 - `with()` may be chained with data or translation functions. 
 - `and()` is a synonym to `with()` but cannot be called before `with()`.
