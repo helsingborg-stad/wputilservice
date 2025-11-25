@@ -42,7 +42,7 @@ class AssetUrlResolver
      */
     public function getDistDirectory(): null|string
     {
-        return rtrim($this->assetsDistPath, '/') . '/';
+        return rtrim($this->assetsDistPath ?? '', '/') . '/';
     }
 
     /**
