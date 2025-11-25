@@ -17,7 +17,7 @@ class AssetRegistrar
     private null|string $enqueueHook = null;
 
     /**
-     * @var enqueuePriority The priority for the enqueue hook.
+     * @var int $enqueuePriority The priority for the enqueue hook.
      */
     private int $enqueuePriority = 10;
 

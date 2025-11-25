@@ -219,7 +219,7 @@ class EnqueueManager implements EnqueueManagerInterface
      * @param string|null $objectName
      * @param array $data
      *
-     * @throws \RuntimeExceptionrd
+     * @throws \RuntimeException
      */
     public function addDataToHandle(string $handle, null|string $objectName, array $data): void
     {
