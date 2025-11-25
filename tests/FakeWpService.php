@@ -103,6 +103,11 @@ class FakeWpService extends BaseFakeWpService
         return true;
     }
 
+    public function wpJsonEncode(mixed $value, int $flags = 0, int $depth = 512): string
+    {
+        return json_encode($value, $flags, $depth);
+    }
+
     public function wpRegisterStyle(
         string $handle,
         string|false $src,
