@@ -373,6 +373,7 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Clone support to ensure deep copies of internal objects.
+     * Note: Scalar properties like $conditionalState are automatically copied by PHP's clone.
      */
     public function __clone()
     {
