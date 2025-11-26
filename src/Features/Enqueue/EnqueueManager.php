@@ -55,6 +55,11 @@ class EnqueueManager implements EnqueueManagerInterface
     private ScriptAttributeManager $scriptAttributeManager;
 
     /**
+     * @var bool|null Conditional state for when() method
+     */
+    private null|bool $conditionalState = null;
+
+    /**
      * Constructor.
      *
      * @param WpService $wpService
@@ -85,6 +90,24 @@ class EnqueueManager implements EnqueueManagerInterface
         null|string $manifestName = null,
         bool $cacheBust = true,
     ): EnqueueManager {
+        return $this;
+    }
+
+    /**
+     * Set a conditional state for the enqueue operations.
+     * If the condition is false, subsequent chained methods will not execute.
+     *
+     * @param bool|callable $condition Boolean value or callable that returns boolean
+     * @return self
+     */
+    public function when(bool|callable $condition): self
+    {
+        if (is_callable($condition)) {
+            $this->conditionalState = (bool) $condition();
+        } else {
+            $this->conditionalState = $condition;
+        }
+
         return $this;
     }
 
@@ -151,6 +174,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function add(string $src, array $deps = [], null|string $version = null, null|bool $module = null): self
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return $this;
+        }
+
         $handle = $this->generateHandleFromSrc($src);
         $this->addAsset($handle, $src, $deps, $module);
         $this->lastHandle = $handle;
@@ -166,6 +194,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function with(null|string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return $this;
+        }
+
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
@@ -190,6 +223,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function and(null|string $function = null, ...$args): EnqueueAssetContext
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return new EnqueueAssetContext($this, $this->lastHandle ?? '');
+        }
+
         if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
             throw new \RuntimeException(
                 'Chaining and() is not allowed before with(). Looking for: '
@@ -212,6 +250,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function on(string $hook, int $priority = 10): EnqueueManager
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return $this;
+        }
+
         $clone = clone $this;
         $clone->lastHandle = null;
         $clone->assetRegistrar->setEnqueueHook($hook, $priority);

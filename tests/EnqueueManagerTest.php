@@ -346,4 +346,104 @@ class EnqueueManagerTest extends TestCase
     {
         return new FakeWpService(new HandlingFakeWpService());
     }
+
+    public function testWhenWithTrueConditionAllowsEnqueuing()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->when(true)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Verify that wpRegisterScript was called
+        $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithFalseConditionPreventsEnqueuing()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->when(false)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Verify that wpRegisterScript was NOT called
+        $this->assertFalse($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithCallableReturningTrueAllowsEnqueuing()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->when(fn() => true)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Verify that wpRegisterScript was called
+        $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithCallableReturningFalsePreventsEnqueuing()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->when(fn() => false)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Verify that wpRegisterScript was NOT called
+        $this->assertFalse($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithFalseConditionPreventsOnHook()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $manager->when(false)->on('wp_enqueue_scripts', 20)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Verify that addAction was NOT called
+        $this->assertFalse($wpService->wasCalled('addAction'));
+        // Verify that wpRegisterScript was NOT called
+        $this->assertFalse($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithTrueConditionAllowsChaining()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $result = $manager
+            ->when(true)
+            ->on('wp_enqueue_scripts', 20)
+            ->add('main.js', ['jquery'], '1.0.0', true)
+            ->with()
+            ->translation('objectName', [
+                'localization_a' => ['Test'],
+            ]);
+
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+        $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
+    }
+
+    public function testWhenWithFalseConditionPreventsChaining()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        $result = $manager
+            ->when(false)
+            ->on('wp_enqueue_scripts', 20)
+            ->add('main.js', ['jquery'], '1.0.0', true)
+            ->with()
+            ->translation('objectName', [
+                'localization_a' => ['Test'],
+            ]);
+
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+        $this->assertFalse($wpService->wasCalled('wpRegisterScript'));
+    }
 }
