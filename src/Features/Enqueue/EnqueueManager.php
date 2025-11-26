@@ -96,6 +96,7 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * Set a conditional state for the enqueue operations.
      * If the condition is false, subsequent chained methods will not execute.
+     * The conditional state persists across all chained method calls until a new when() is called.
      *
      * @param bool|callable $condition Boolean value or callable that returns boolean
      * @return self
@@ -221,11 +222,11 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @throws \RuntimeException
      */
-    public function and(null|string $function = null, ...$args): EnqueueAssetContext
+    public function and(null|string $function = null, ...$args): EnqueueAssetContext|EnqueueManager
     {
         // Skip if conditional state is false
         if ($this->conditionalState === false) {
-            return new EnqueueAssetContext($this, $this->lastHandle ?? '');
+            return $this;
         }
 
         if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
