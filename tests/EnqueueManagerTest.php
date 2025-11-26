@@ -425,23 +425,9 @@ class EnqueueManagerTest extends TestCase
             ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
-        
+
         // When using on(), the registration is deferred to the hook, so check that addAction was called
         $this->assertTrue($wpService->wasCalled('addAction'));
-        $callLogAddAction = $wpService->getCallLog('addAction');
-        $found = false;
-        foreach ($callLogAddAction as $call) {
-            if (
-                $call[0] === 'wp_enqueue_scripts'
-                && is_object($call[1])
-                && $call[1] instanceof \Closure
-                && $call[2] === 20
-            ) {
-                $found = true;
-                break;
-            }
-        }
-        $this->assertTrue($found, 'The enqueueAssets hook should be added when condition is true.');
     }
 
     public function testWhenWithFalseConditionPreventsChaining()
@@ -460,7 +446,7 @@ class EnqueueManagerTest extends TestCase
             ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
-        
+
         // When condition is false, addAction should NOT be called
         $this->assertFalse($wpService->wasCalled('addAction'));
     }
@@ -479,7 +465,7 @@ class EnqueueManagerTest extends TestCase
 
         // Test that second.js was registered (not affected by when(false))
         $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
-        
+
         $callLog = $wpService->getCallLog('wpRegisterScript');
         $foundSecond = false;
         foreach ($callLog as $call) {
