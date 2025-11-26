@@ -446,4 +446,30 @@ class EnqueueManagerTest extends TestCase
         $this->assertInstanceOf(EnqueueManager::class, $result);
         $this->assertFalse($wpService->wasCalled('wpRegisterScript'));
     }
+
+    public function testWhenNotAffectingSequentialInstances()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with when(false)
+        $manager->when(false)->add('main.js', ['jquery'], '1.0.0', true);
+
+        // Second chain without when() - should execute normally
+        $manager->add('second.js', [], '1.0.0', true);
+
+        // Test that second.js was registered (not affected by when(false))
+        $this->assertTrue($wpService->wasCalled('wpRegisterScript'));
+        
+        $callLog = $wpService->getCallLog('wpRegisterScript');
+        $foundSecond = false;
+        foreach ($callLog as $call) {
+            if ($call[0] === 'secondjs') {
+                $foundSecond = true;
+                break;
+            }
+        }
+        $this->assertTrue($foundSecond, 'second.js should be registered since it was not in the when(false) chain.');
+    }
 }

@@ -96,20 +96,22 @@ class EnqueueManager implements EnqueueManagerInterface
     /**
      * Set a conditional state for the enqueue operations.
      * If the condition is false, subsequent chained methods will not execute.
-     * The conditional state persists across all chained method calls until a new when() is called.
+     * Returns a cloned instance with the conditional state set to avoid affecting other chains.
      *
      * @param bool|callable $condition Boolean value or callable that returns boolean
-     * @return self
+     * @return EnqueueManager A cloned instance with the conditional state configured
      */
-    public function when(bool|callable $condition): self
+    public function when(bool|callable $condition): EnqueueManager
     {
+        $clone = clone $this;
+        
         if (is_callable($condition)) {
-            $this->conditionalState = (bool) $condition();
+            $clone->conditionalState = (bool) $condition();
         } else {
-            $this->conditionalState = $condition;
+            $clone->conditionalState = $condition;
         }
 
-        return $this;
+        return $clone;
     }
 
     /**
