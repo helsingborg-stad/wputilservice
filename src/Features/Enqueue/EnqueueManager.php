@@ -113,6 +113,16 @@ class EnqueueManager implements EnqueueManagerInterface
     }
 
     /**
+     * Check if operations should execute based on conditional state.
+     *
+     * @return bool
+     */
+    public function shouldExecute(): bool
+    {
+        return $this->conditionalState !== false;
+    }
+
+    /**
      * Set the hook on which to enqueue assets.
      *
      * @param string $hook The WordPress hook name
@@ -195,9 +205,10 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function with(null|string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
     {
-        // Skip if conditional state is false
+        // Skip execution if conditional state is false, but still return context for chaining
         if ($this->conditionalState === false) {
-            return $this;
+            // Create a dummy context to allow chaining to continue
+            return new EnqueueAssetContext($this, $this->lastHandle ?? '');
         }
 
         if (!$this->lastHandle) {
@@ -222,13 +233,8 @@ class EnqueueManager implements EnqueueManagerInterface
      *
      * @throws \RuntimeException
      */
-    public function and(null|string $function = null, ...$args): EnqueueAssetContext|EnqueueManager
+    public function and(null|string $function = null, ...$args): EnqueueAssetContext
     {
-        // Skip if conditional state is false
-        if ($this->conditionalState === false) {
-            return $this;
-        }
-
         if ($this->lastHandle === null || !isset($this->handleHasSeenWithFunction[$this->lastHandle])) {
             throw new \RuntimeException(
                 'Chaining and() is not allowed before with(). Looking for: '
@@ -237,6 +243,12 @@ class EnqueueManager implements EnqueueManagerInterface
                 . json_encode($this->handleHasSeenWithFunction),
             );
         }
+
+        // Skip execution if conditional state is false, but still allow chaining
+        if ($this->conditionalState === false) {
+            return new EnqueueAssetContext($this, $this->lastHandle);
+        }
+
         $this->with($function, ...$args);
 
         return $this->with();
