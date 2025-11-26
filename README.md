@@ -40,6 +40,7 @@ $wpUtilService = new WpUtilService($wpService);
 
 ### Enqueue Scripts
 - `enqueue()` returns an `EnqueueManager`.
+- `when()` sets a conditional state. If the condition is false, subsequent chained methods will not execute.
 - `on()` wraps the following functions inside a hook (eg. wp_enqueue_script). Only documented hooks are allowed. 
 - `add()` enqueues a script.
 - `with()` may be chained with data or translation functions. 
@@ -98,6 +99,26 @@ $wpUtilService
 $enqueue = $wpUtilService->enqueue(__DIR__); 
 $enqueue->add('main.js', ['jquery']); 
 $enqueue->add('main.css'); 
+```
+---
+
+#### Example 6 (using when() with boolean)
+```php
+$wpUtilService
+    ->enqueue(__DIR__)
+    ->when(is_admin())
+    ->on('admin_enqueue_scripts', 20)
+    ->add('admin.js', ['jquery']);
+```
+---
+
+#### Example 7 (using when() with callable)
+```php
+$wpUtilService
+    ->enqueue(__DIR__)
+    ->when(fn() => current_user_can('edit_posts'))
+    ->on('wp_enqueue_scripts', 20)
+    ->add('editor.js', ['jquery']);
 ```
 ---
 
