@@ -31,6 +31,8 @@ class AssetUrlResolver
 
     /**
      * Set the dist directory.
+     *
+     * @param string $distDirectory Dist directory path
      */
     public function setDistDirectory(string $distDirectory): void
     {
@@ -39,14 +41,21 @@ class AssetUrlResolver
 
     /**
      * Get the dist directory.
+     *
+     * @return string|null
      */
     public function getDistDirectory(): null|string
     {
-        return rtrim($this->assetsDistPath, '/') . '/';
+        return rtrim($this->assetsDistPath ?? '', '/') . '/';
     }
 
     /**
      * Resolve full asset URL (with cache-busting if available).
+     *
+     * @param string $src Relative asset path
+     * @param RuntimeContextEnum|null $contextMode Context mode for URL resolution
+     * @param string|null $rootDirectory Root directory for plugin/MU-plugin contexts
+     * @return string
      */
     public function getAssetUrl(
         string $src,
@@ -89,6 +98,12 @@ class AssetUrlResolver
 
     /**
      * MU-Plugin dir URL resolver.
+     *
+     * @param string $src Relative asset path
+     *
+     * @param string|null $rootDirectory Root directory for MU-plugin context
+     * @throws \RuntimeException
+     * @return string
      */
     private function muPluginDirUrl(string $src, null|string $rootDirectory = null): string
     {
@@ -98,6 +113,9 @@ class AssetUrlResolver
 
     /**
      * Determine if a script is a module by checking manifest (if available).
+     *
+     * @param string $src Relative asset path
+     * @return bool
      */
     public function isModule(string $src): bool
     {

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace WpUtilService\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\Enqueue\EnqueueAssetContext;
+use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Tests\FakeWpService;
 
 class EnqueueManagerTest extends TestCase
@@ -14,22 +14,20 @@ class EnqueueManagerTest extends TestCase
     public function testFluentApiChaining()
     {
         //Setup deps
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         // Test chaining add and with()->translation
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with()
-                ->translation('objectName', [
-                  'localization_a' => ['Test']
-                ])
-              ->and()
-                ->data('ObjectName', [
-                  'id' => 1
-                ]);
+            ->with()
+            ->translation('objectName', [
+                'localization_a' => ['Test'],
+            ])
+            ->and()
+            ->data('ObjectName', [
+                'id' => 1,
+            ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
@@ -37,17 +35,13 @@ class EnqueueManagerTest extends TestCase
     public function testFluentApiChainingWithParametizedTranslation()
     {
         //Setup deps
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         // Test chaining add and with('translation')->
-        $result = $manager
-            ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with('translation', 'objectName', [
-                  'localization_a' => 'Test'
-              ]);
+        $result = $manager->add('main.js', ['jquery'], '1.0.0', true)->with('translation', 'objectName', [
+            'localization_a' => 'Test',
+        ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
@@ -55,19 +49,19 @@ class EnqueueManagerTest extends TestCase
     public function testComplexFluentApiChainingWithParametizedTranslation()
     {
         //Setup deps
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         // Test chaining add and with('translation')->
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with('translation', 'objectName', [
-                  'localization_a' => 'Test'
-              ])->and()->data(null, [
-                  'id' => 1
-              ]);
+            ->with('translation', 'objectName', [
+                'localization_a' => 'Test',
+            ])
+            ->and()
+            ->data(null, [
+                'id' => 1,
+            ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
@@ -75,65 +69,175 @@ class EnqueueManagerTest extends TestCase
     public function testComplexFluentApiChainingWithParametizedTranslationAndData()
     {
         //Setup deps
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         // Test chaining add and with('translation')->
-        $result = $manager
-            ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with('translation', 'objectName', [
-                  'localization_a' => 'Test'
-              ])->with('data', 'ObjectName', [
-                  'id' => 1
-              ])->with('data', 'ObjectName2', [
-                  'test' => 'value'
-              ]);
+        $result = $manager->add('main.js', ['jquery'], '1.0.0', true)->with('translation', 'objectName', [
+            'localization_a' => 'Test',
+        ])->with('data', 'ObjectName', [
+            'id' => 1,
+        ])->with('data', 'ObjectName2', [
+            'test' => 'value',
+        ]);
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    public function testComplexFluentApiChaining() {
-
+    public function testComplexFluentApiChaining()
+    {
         //Setup deps
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         $result = $manager
             ->add('main.js', ['jquery'], '1.0.0', true)
-              ->with()->translation('objectName', [
-                'localization_a' => ['Test']
-              ])
+            ->with()
+            ->translation('objectName', [
+                'localization_a' => ['Test'],
+            ])
             ->add('second.js', [], '1.0.0', true)
-              ->with()->data(null, [
-                'id' => 1
-              ])
-              ->and()->translation('objectName2', [
-                'localization_b' => ['Test']
-              ])
+            ->with()
+            ->data(null, [
+                'id' => 1,
+            ])
+            ->and()
+            ->translation('objectName2', [
+                'localization_b' => ['Test'],
+            ])
             ->add('secondary.js');
 
         $this->assertInstanceOf(EnqueueManager::class, $result);
     }
 
-    public function testAndThrowsIfUsedBeforeWith() {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+    public function testAndThrowsIfUsedBeforeWith()
+    {
+        $manager = new EnqueueManager($this->getWpService());
         $manager->setDistDirectory('/path/to/dist');
 
         $this->expectException(\RuntimeException::class);
         $manager->add('main.js', ['jquery'], '1.0.0', true)->and();
     }
 
+    public function testOnThrowsIfHooksIsInvalid()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $manager->add('main.js', ['jquery'], '1.0.0', true)->on('somehook', 20);
+    }
+
+    public function testHookIsAddedWhenUsingOnStatementForJsAsset()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->translation('objectName', [
+            'localization_a' => ['Test'],
+        ]);
+
+        //Test that on() added the hook correctly
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        $found = false;
+        foreach ($callLogAddAction as $call) {
+            if (
+                $call[0] === 'wp_enqueue_scripts'
+                && is_object($call[1])
+                && $call[1] instanceof \Closure
+                && $call[2] === 20
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'The enqueueAssets hook was not added correctly.');
+    }
+
+    public function testHookIsAddedWhenUsingOnStatementForCssAsset()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 30)->add('main.css');
+
+        //Test that on() added the hook correctly
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        $found = false;
+        foreach ($callLogAddAction as $call) {
+            if (
+                $call[0] === 'wp_enqueue_scripts'
+                && is_object($call[1])
+                && $call[1] instanceof \Closure
+                && $call[2] === 30
+            ) {
+                $found = true;
+                break;
+            }
+        }
+        $this->assertTrue($found, 'The enqueueAssets hook was not added correctly.');
+    }
+
+    public function testOnNotAffectingSequentialInstances()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // First chain with on()
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->translation('objectName', [
+            'localization_a' => ['Test'],
+        ]);
+
+        // Second chain without on()
+        $manager->add('second.js', [], '1.0.0', true)->with()->data(null, [
+            'id' => 1,
+        ]);
+
+        //Test that second chain's asset is not hooked at all
+        $callLogAddAction = $wpService->getCallLog('addAction');
+        foreach ($callLogAddAction as $call) {
+            $this->assertNotEquals('secondjs', $call[0] ?? null, 'second.js should not be hooked at all.');
+        }
+    }
+
+    public function testAdminPrintScriptsHookIsAccepted()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Should not throw
+        $result = $manager->on('admin_print_scripts-settings_page', 10);
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testAdminPrintStylesHookIsAccepted()
+    {
+        $manager = new EnqueueManager($this->getWpService());
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Should not throw
+        $result = $manager->on('admin_print_styles-settings_page', 10);
+        $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
     public function testWithThrowsIfNoAssetAdded()
     {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
 
         $this->expectException(\RuntimeException::class);
         $manager->with();
@@ -141,9 +245,7 @@ class EnqueueManagerTest extends TestCase
 
     public function testContextReturnsManager()
     {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
 
         // Adds a main.js asset
         $manager->add('main.js');
@@ -159,21 +261,16 @@ class EnqueueManagerTest extends TestCase
 
     public function testThrowsIfObjectNameIsNotUnique()
     {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
 
-        $manager->add('main.js')->with()->translation('objectName', ['key' => ['value']]) ;
+        $manager->add('main.js')->with()->translation('objectName', ['key' => ['value']]);
         $this->expectException(\RuntimeException::class);
         $manager->add('second.js')->with()->translation('objectName', ['key' => ['value']]);
     }
-    
 
     public function testThrowsIfTranslationIsAddedOnAssetWithoutAbility()
     {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
 
         $manager->add('main.css');
         $this->expectException(\RuntimeException::class);
@@ -182,9 +279,7 @@ class EnqueueManagerTest extends TestCase
 
     public function testThrowsIfDataIsAddedOnAssetWithoutAbility()
     {
-        $manager = new EnqueueManager(
-            $this->getWpService()
-        );
+        $manager = new EnqueueManager($this->getWpService());
 
         $manager->add('main.css');
         $this->expectException(\RuntimeException::class);
@@ -206,14 +301,14 @@ class EnqueueManagerTest extends TestCase
         $callLogItem = $wpService->getCallLog('wpRegisterScript');
         $this->assertContains(
             [
-                'MainJs',
+                'mainjs',
                 'https://test.test/path/to/dist/main.js',
                 ['jquery'],
                 false,
                 true,
             ],
             $callLogItem,
-            'wpRegisterScript was not called with the expected arguments. Got:' . var_export($callLogItem, true)
+            'wpRegisterScript was not called with the expected arguments. Got:' . var_export($callLogItem, true),
         );
     }
 
@@ -232,13 +327,13 @@ class EnqueueManagerTest extends TestCase
         $callLogItem = $wpService->getCallLog('wpRegisterStyle');
         $this->assertContains(
             [
-                'MainCss',
+                'maincss',
                 'https://test.test/path/to/dist/main.css',
                 ['bootstrap'],
-                false
+                false,
             ],
             $callLogItem,
-            'wpRegisterStyle was not called with the expected arguments. Got:' . var_export($callLogItem, true)
+            'wpRegisterStyle was not called with the expected arguments. Got:' . var_export($callLogItem, true),
         );
     }
 
@@ -249,8 +344,6 @@ class EnqueueManagerTest extends TestCase
      */
     private function getWpService(): FakeWpService
     {
-        return new FakeWpService(
-            new HandlingFakeWpService()
-        );
+        return new FakeWpService(new HandlingFakeWpService());
     }
 }

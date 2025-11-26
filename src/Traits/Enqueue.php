@@ -23,6 +23,7 @@ trait Enqueue
      *       cacheBust:     true
      *   )
      *   ->add('main.js', ['jquery'], '1.0.0', true)
+     *   ->on('wp_enqueue_scripts', 20)
      *   ->with()
      *       ->translation('objectName', [
      *           'localization_a' => ['Test']

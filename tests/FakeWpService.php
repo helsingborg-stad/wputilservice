@@ -1,9 +1,9 @@
-<?php 
+<?php
 
 namespace WpUtilService\Tests;
 
-use WpService\WpService;
 use WpService\Implementations\FakeWpService as BaseFakeWpService;
+use WpService\WpService;
 
 class FakeWpService extends BaseFakeWpService
 {
@@ -13,7 +13,10 @@ class FakeWpService extends BaseFakeWpService
     public array $localizedScripts = [];
     public array $filters = [];
 
-    public function __construct(private $innerService, private array $methods = []) {}
+    public function __construct(
+        private $innerService,
+        private array $methods = [],
+    ) {}
 
     /**
      * Magic method to handle dynamic method calls.
@@ -24,7 +27,7 @@ class FakeWpService extends BaseFakeWpService
         $this->logCall($name, $arguments);
 
         if (isset($this->methods[$name])) {
-            return ($this->methods[$name])(...$arguments);
+            return $this->methods[$name](...$arguments);
         }
 
         if (method_exists($this->innerService, $name)) {
@@ -54,7 +57,7 @@ class FakeWpService extends BaseFakeWpService
         string|false $src,
         array $deps = [],
         string|bool|null $ver = false,
-        array|bool $args = []
+        array|bool $args = [],
     ): bool {
         $this->logCall('wpRegisterScript', func_get_args());
         $this->registeredScripts[$handle] = [
@@ -77,7 +80,7 @@ class FakeWpService extends BaseFakeWpService
         return '/path/to/template';
     }
 
-    public function getSiteUrl(?int $blogId = null, string $path = '', ?string $scheme = null): string
+    public function getSiteUrl(null|int $blogId = null, string $path = '', null|string $scheme = null): string
     {
         return 'https://test.test/';
     }
@@ -88,14 +91,30 @@ class FakeWpService extends BaseFakeWpService
         return true;
     }
 
+    public function addAction(string $hookName, callable $callback, int $priority = 10, int $acceptedArgs = 1): true
+    {
+        $this->logCall('addAction', func_get_args());
+        return true;
+    }
+
     public function wpLocalizeScript(string $handle, string $objectName, array $data): bool
     {
         $this->logCall('wpLocalizeScript', func_get_args());
         return true;
     }
 
-    public function wpRegisterStyle(string $handle, string|false $src, array $deps = [], string|bool|null $ver = false, string $media = 'all'): bool
+    public function wpJsonEncode(mixed $value, int $flags = 0, int $depth = 512): string
     {
+        return json_encode($value, $flags, $depth);
+    }
+
+    public function wpRegisterStyle(
+        string $handle,
+        string|false $src,
+        array $deps = [],
+        string|bool|null $ver = false,
+        string $media = 'all',
+    ): bool {
         $this->logCall('wpRegisterStyle', func_get_args());
         return true;
     }

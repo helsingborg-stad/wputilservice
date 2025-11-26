@@ -89,7 +89,23 @@ class EnqueueManager implements EnqueueManagerInterface
     }
 
     /**
+     * Set the hook on which to enqueue assets.
+     *
+     * @param string $hook The WordPress hook name
+     * @param int $priority The priority for the hook (default: 10)
+     * @return self
+     */
+    public function setEnqueueHook(string $hook, int $priority = 10): self
+    {
+        $this->assetRegistrar->setEnqueueHook($hook, $priority);
+        return $this;
+    }
+
+    /**
      * Set the dist directory and return this instance (fluent).
+     *
+     * @param string $distDirectory
+     * @return self
      */
     public function setDistDirectory(string $distDirectory): self
     {
@@ -101,6 +117,9 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Set the context mode and return this instance (fluent).
+     *
+     * @param RuntimeContextEnum|null $contextMode
+     * @return self
      */
     public function setContextMode(null|RuntimeContextEnum $contextMode): self
     {
@@ -108,6 +127,12 @@ class EnqueueManager implements EnqueueManagerInterface
         return $this;
     }
 
+    /**
+     * Set the root directory and return this instance (fluent).
+     *
+     * @param string|null $rootDirectory
+     * @return self
+     */
     public function setRootDirectory(null|string $rootDirectory): self
     {
         $this->config['rootDirectory'] = $rootDirectory;
@@ -176,6 +201,21 @@ class EnqueueManager implements EnqueueManagerInterface
         $this->with($function, ...$args);
 
         return $this->with();
+    }
+
+    /**
+     * Set the hook on which to attach when rendering assets.
+     *
+     * @param string $hook The WordPress hook name
+     * @param int $priority The priority for the hook (default: 10)
+     * @return EnqueueManager A cloned instance with the hook configured
+     */
+    public function on(string $hook, int $priority = 10): EnqueueManager
+    {
+        $clone = clone $this;
+        $clone->lastHandle = null;
+        $clone->assetRegistrar->setEnqueueHook($hook, $priority);
+        return $clone;
     }
 
     /**
@@ -273,5 +313,17 @@ class EnqueueManager implements EnqueueManagerInterface
             throw new \InvalidArgumentException("Could not generate handle from source: '{$src}'");
         }
         return $handle;
+    }
+
+    /**
+     * Clone support to ensure deep copies of internal objects.
+     */
+    public function __clone()
+    {
+        $this->assetRegistrar = clone $this->assetRegistrar;
+        $this->assetLocalization = clone $this->assetLocalization;
+        $this->assetData = clone $this->assetData;
+        $this->assetUrlResolver = clone $this->assetUrlResolver;
+        $this->scriptAttributeManager = clone $this->scriptAttributeManager;
     }
 }
