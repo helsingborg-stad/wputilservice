@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WpUtilService\Features\Enqueue;
 
 use WpService\WpService;
-use WpUtilService\Contracts\Enqueue;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\Features\RuntimeContextEnum;
 
