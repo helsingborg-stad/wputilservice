@@ -53,6 +53,7 @@ class RuntimeContextManager
 
     /**
      * Get the context of the path provided.
+     * Detects context as whatever appears first in the path.
      *
      * @param string $path
      * @return RuntimeContextEnum|null Matching context or null if not found.
@@ -66,15 +67,17 @@ class RuntimeContextManager
             throw new \RuntimeException('A path must be given.');
         }
 
-        if (str_contains($path, '/' . RuntimeContextEnum::THEME->value . '/')) {
-            return RuntimeContextEnum::THEME;
+        $firstPosition = null;
+        $firstContext = null;
+
+        foreach (RuntimeContextEnum::cases() as $context) {
+            $position = strpos($path, '/' . $context->value . '/');
+            if ($position !== false && ($firstPosition === null || $position < $firstPosition)) {
+                $firstPosition = $position;
+                $firstContext  = $context;
+            }
         }
-        if (str_contains($path, '/' . RuntimeContextEnum::MUPLUGIN->value . '/')) {
-            return RuntimeContextEnum::MUPLUGIN;
-        }
-        if (str_contains($path, '/' . RuntimeContextEnum::PLUGIN->value . '/')) {
-            return RuntimeContextEnum::PLUGIN;
-        }
-        return null;
+
+        return $firstContext;
     }
 }
