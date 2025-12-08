@@ -68,7 +68,7 @@ class RuntimeContextManager
         }
 
         $firstPosition = null;
-        $firstContext = null;
+        $firstContext  = null;
 
         foreach (RuntimeContextEnum::cases() as $context) {
             $position = strpos($path, '/' . $context->value . '/');
