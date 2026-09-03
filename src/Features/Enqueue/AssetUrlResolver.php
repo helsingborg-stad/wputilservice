@@ -107,8 +107,40 @@ class AssetUrlResolver
      */
     private function muPluginDirUrl(string $src, null|string $rootDirectory = null): string
     {
-        throw new \RuntimeException('MU-Plugin URL resolution not implemented yet.');
-        return '';
+        $baseUrl = $this->muPluginBaseUrl();
+
+        if (empty($rootDirectory)) {
+            return $baseUrl;
+        }
+
+        $normalizedRoot = str_replace('\\', '/', rtrim((string) $rootDirectory, '/'));
+        $relativePath = preg_replace('#.*?/wp-content/mu-plugins/#i', '', $normalizedRoot, 1);
+
+        if (is_string($relativePath) && $relativePath !== '' && $relativePath !== '.' && $relativePath !== '/') {
+            return rtrim($baseUrl, '/') . '/' . trim($relativePath, '/');
+        }
+
+        $pluginName = basename($normalizedRoot);
+        if ($pluginName !== '' && $pluginName !== '.' && $pluginName !== '/') {
+            return rtrim($baseUrl, '/') . '/' . $pluginName;
+        }
+
+        return $baseUrl;
+    }
+
+    private function muPluginBaseUrl(): string
+    {
+        $contentUrl = $this->wpService->contentUrl('/mu-plugins');
+
+        if (is_string($contentUrl) && $contentUrl !== '') {
+            return rtrim($contentUrl, '/');
+        }
+
+        if (defined('WP_CONTENT_URL')) {
+            return rtrim((string) WP_CONTENT_URL, '/') . '/mu-plugins';
+        }
+
+        return '/wp-content/mu-plugins';
     }
 
     /**

@@ -7,6 +7,7 @@ namespace WpUtilService\Tests;
 use PHPUnit\Framework\TestCase;
 use WpUtilService\Features\Enqueue\EnqueueAssetContext;
 use WpUtilService\Features\Enqueue\EnqueueManager;
+use WpUtilService\Features\RuntimeContextEnum;
 use WpUtilService\Tests\FakeWpService;
 
 class EnqueueManagerTest extends TestCase
@@ -233,6 +234,25 @@ class EnqueueManagerTest extends TestCase
         // Should not throw
         $result = $manager->on('admin_print_styles-settings_page', 10);
         $this->assertInstanceOf(EnqueueManager::class, $result);
+    }
+
+    public function testMuPluginAssetUrlIsResolved()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/dist');
+        $manager->setContextMode(RuntimeContextEnum::MUPLUGIN);
+        $manager->setRootDirectory('/var/www/project/wp-content/mu-plugins/acf-openstreetmap-field');
+
+        $manager->add('css/main.css');
+
+        $callLog = $wpService->getCallLog('wpRegisterStyle');
+        $this->assertNotEmpty($callLog);
+        $this->assertSame('css-maincss', $callLog[0][0] ?? null);
+        $this->assertSame(
+            'https://test.test/wp-content/mu-plugins/acf-openstreetmap-field/dist/css/main.css',
+            $callLog[0][1] ?? null,
+        );
     }
 
     public function testWithThrowsIfNoAssetAdded()

@@ -56,4 +56,14 @@ class HandlingFakeWpService extends BaseFakeWpService
     {
         return '';
     }
+
+    public function contentUrl(string $path = ''): string
+    {
+        return 'https://test.test/wp-content' . $path;
+    }
+
+    public function pluginsUrl(string $path = '', string $plugin = ''): string
+    {
+        return 'https://test.test/wp-content/plugins' . $path;
+    }
 }

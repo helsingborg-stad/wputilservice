@@ -80,6 +80,18 @@ class FakeWpService extends BaseFakeWpService
         return '/path/to/template';
     }
 
+    public function contentUrl(string $path = ''): string
+    {
+        $this->logCall('contentUrl', func_get_args());
+        return 'https://test.test/wp-content' . $path;
+    }
+
+    public function pluginsUrl(string $path = '', string $plugin = ''): string
+    {
+        $this->logCall('pluginsUrl', func_get_args());
+        return 'https://test.test/wp-content/plugins' . $path;
+    }
+
     public function getSiteUrl(null|int $blogId = null, string $path = '', null|string $scheme = null): string
     {
         return 'https://test.test/';
