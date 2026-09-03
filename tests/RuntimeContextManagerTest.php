@@ -15,4 +15,18 @@ class RuntimeContextManagerTest extends TestCase
         $context->setPath('/root/wp-content/plugins/my-plugin/src/php');
         $this->assertEquals('/root/wp-content/plugins/my-plugin/', $context->getNormalizedRootPath());
     }
+
+    public function testVendorPathIsNormalized()
+    {
+        $context = new RuntimeContextManager();
+        $context->setPath('/root/wp-content/plugins/my-plugin/vendor/some-package/src');
+        $this->assertEquals('/root/wp-content/plugins/my-plugin/', $context->getNormalizedRootPath());
+    }
+
+    public function testNormalizationIsUsingFirstMatchingContextKeyword()
+    {
+        $context = new RuntimeContextManager();
+        $context->setPath('/root/wp-content/plugins/my-plugin/vendor/themes/wp-service/some-package/src');
+        $this->assertEquals('/root/wp-content/plugins/my-plugin/', $context->getNormalizedRootPath());
+    }
 }
