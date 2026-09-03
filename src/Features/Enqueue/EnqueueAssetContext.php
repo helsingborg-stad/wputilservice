@@ -36,7 +36,10 @@ class EnqueueAssetContext
      */
     public function translation(null|string $objectName, array $localizationData): EnqueueManager
     {
-        $this->manager->addTranslationToHandle($this->handle, $objectName, $localizationData);
+        // Only execute if the manager's conditional state allows it
+        if ($this->manager->shouldExecute()) {
+            $this->manager->addTranslationToHandle($this->handle, $objectName, $localizationData);
+        }
 
         return $this->manager; // Return the manager instance for chaining
     }
@@ -49,7 +52,10 @@ class EnqueueAssetContext
      */
     public function data(null|string $objectName, array $data): EnqueueManager
     {
-        $this->manager->addDataToHandle($this->handle, $objectName, $data);
+        // Only execute if the manager's conditional state allows it
+        if ($this->manager->shouldExecute()) {
+            $this->manager->addDataToHandle($this->handle, $objectName, $data);
+        }
         return $this->manager;
     }
 

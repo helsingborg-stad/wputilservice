@@ -54,6 +54,11 @@ class EnqueueManager implements EnqueueManagerInterface
     private ScriptAttributeManager $scriptAttributeManager;
 
     /**
+     * @var bool|null Conditional state for when() method
+     */
+    private null|bool $conditionalState = null;
+
+    /**
      * Constructor.
      *
      * @param WpService $wpService
@@ -85,6 +90,37 @@ class EnqueueManager implements EnqueueManagerInterface
         bool $cacheBust = true,
     ): EnqueueManager {
         return $this;
+    }
+
+    /**
+     * Set a conditional state for the enqueue operations.
+     * If the condition is false, subsequent chained methods will not execute.
+     * Returns a cloned instance with the conditional state set to avoid affecting other chains.
+     *
+     * @param bool|callable $condition Boolean value or callable that returns boolean
+     * @return EnqueueManager A cloned instance with the conditional state configured
+     */
+    public function when(bool|callable $condition): EnqueueManager
+    {
+        $clone = clone $this;
+        
+        if (is_callable($condition)) {
+            $clone->conditionalState = (bool) $condition();
+        } else {
+            $clone->conditionalState = $condition;
+        }
+
+        return $clone;
+    }
+
+    /**
+     * Check if operations should execute based on conditional state.
+     *
+     * @return bool
+     */
+    public function shouldExecute(): bool
+    {
+        return $this->conditionalState !== false;
     }
 
     /**
@@ -150,6 +186,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function add(string $src, array $deps = [], null|string $version = null, null|bool $module = null): self
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return $this;
+        }
+
         $handle = $this->generateHandleFromSrc($src);
         $this->addAsset($handle, $src, $deps, $module);
         $this->lastHandle = $handle;
@@ -165,6 +206,12 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function with(null|string $function = null, ...$args): EnqueueManager|EnqueueAssetContext
     {
+        // Skip execution if conditional state is false, but still return context for chaining
+        if ($this->conditionalState === false) {
+            // Create a dummy context to allow chaining to continue
+            return new EnqueueAssetContext($this, $this->lastHandle ?? '');
+        }
+
         if (!$this->lastHandle) {
             throw new \RuntimeException('No asset has been added to attach context.');
         }
@@ -197,6 +244,12 @@ class EnqueueManager implements EnqueueManagerInterface
                 . json_encode($this->handleHasSeenWithFunction),
             );
         }
+
+        // Skip execution if conditional state is false, but still allow chaining
+        if ($this->conditionalState === false) {
+            return new EnqueueAssetContext($this, $this->lastHandle);
+        }
+
         $this->with($function, ...$args);
 
         return $this->with();
@@ -211,6 +264,11 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     public function on(string $hook, int $priority = 10): EnqueueManager
     {
+        // Skip if conditional state is false
+        if ($this->conditionalState === false) {
+            return $this;
+        }
+
         $clone = clone $this;
         $clone->lastHandle = null;
         $clone->assetRegistrar->setEnqueueHook($hook, $priority);
@@ -316,6 +374,7 @@ class EnqueueManager implements EnqueueManagerInterface
 
     /**
      * Clone support to ensure deep copies of internal objects.
+     * Note: Scalar properties like $conditionalState are automatically copied by PHP's clone.
      */
     public function __clone()
     {
