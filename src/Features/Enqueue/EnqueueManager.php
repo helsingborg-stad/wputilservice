@@ -321,7 +321,9 @@ class EnqueueManager implements EnqueueManagerInterface
     {
         $this->assetRegistrar = clone $this->assetRegistrar;
         $this->assetLocalization = clone $this->assetLocalization;
+        $this->assetLocalization->setAssetRegistrar($this->assetRegistrar);
         $this->assetData = clone $this->assetData;
+        $this->assetData->setAssetRegistrar($this->assetRegistrar);
         $this->assetUrlResolver = clone $this->assetUrlResolver;
         $this->scriptAttributeManager = clone $this->scriptAttributeManager;
     }
