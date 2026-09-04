@@ -162,6 +162,70 @@ class EnqueueManagerTest extends TestCase
         $this->assertTrue($found, 'The enqueueAssets hook was not added correctly.');
     }
 
+    public function testTranslationIsDeferredAndAppliedWhenOnStatementHookFires()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Chain with on() so registration is deferred until the hook fires
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->translation('objectName', [
+            'localization_a' => ['Test'],
+        ]);
+
+        // translation() should not have been applied yet, since the hook has not fired
+        $this->assertFalse($wpService->wasCalled('wpLocalizeScript'));
+
+        // Simulate WordPress firing the registered hook
+        foreach ($wpService->getCallLog('addAction') as $call) {
+            if ($call[0] === 'wp_enqueue_scripts' && $call[1] instanceof \Closure) {
+                ($call[1])();
+            }
+        }
+
+        // Now translation() should have been applied
+        $this->assertTrue($wpService->wasCalled('wpLocalizeScript'));
+        $this->assertContains(
+            ['mainjs', 'objectName', ['localization_a' => ['Test']]],
+            $wpService->getCallLog('wpLocalizeScript'),
+        );
+    }
+
+    public function testDataIsDeferredAndAppliedWhenOnStatementHookFires()
+    {
+        $wpService = $this->getWpService();
+        $manager = new EnqueueManager($wpService);
+        $manager->setDistDirectory('/path/to/dist');
+
+        // Chain with on() so registration is deferred until the hook fires
+        $manager->on('wp_enqueue_scripts', 20)->add(
+            'main.js',
+            ['jquery'],
+            '1.0.0',
+            true,
+        )->with()->data('objectName', [
+            'id' => 1,
+        ]);
+
+        // data() should not have been applied yet, since the hook has not fired
+        $this->assertFalse($wpService->wasCalled('wpAddInlineScript'));
+
+        // Simulate WordPress firing the registered hook
+        foreach ($wpService->getCallLog('addAction') as $call) {
+            if ($call[0] === 'wp_enqueue_scripts' && $call[1] instanceof \Closure) {
+                ($call[1])();
+            }
+        }
+
+        // Now data() should have been applied
+        $this->assertTrue($wpService->wasCalled('wpAddInlineScript'));
+    }
+
     public function testHookIsAddedWhenUsingOnStatementForCssAsset()
     {
         $wpService = $this->getWpService();

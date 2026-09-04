@@ -30,6 +30,20 @@ class AssetLocalization
     }
 
     /**
+     * Rebind this instance to a (possibly cloned) AssetRegistrar.
+     *
+     * Used by EnqueueManager::__clone() to keep the reference in sync with
+     * the manager's own (cloned) AssetRegistrar, so hook deferral configured
+     * via on() also applies to translations.
+     *
+     * @param AssetRegistrar $assetRegistrar
+     */
+    public function setAssetRegistrar(AssetRegistrar $assetRegistrar): void
+    {
+        $this->assetRegistrar = $assetRegistrar;
+    }
+
+    /**
      * Attach translation data to a specific asset handle.
      *
      * Enforces:
