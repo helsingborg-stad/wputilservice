@@ -21,7 +21,7 @@ class AssetRegistrar
      */
     private bool $hookRegistered = false;
     /**
-     * @var enqueueHook The hook on which to enqueue assets.
+     * @var string|null The hook on which to enqueue assets.
      */
     private null|string $enqueueHook = null;
 
@@ -37,6 +37,7 @@ class AssetRegistrar
      */
     public function __construct(
         private WpService $wpService,
+        private bool $shouldEnqueueAssets = true,
     ) {}
 
     /**
@@ -53,6 +54,10 @@ class AssetRegistrar
         $wrapWithAction = function (callable $fn) {
             if ($this->enqueueHook !== null) {
                 return function (...$args) use ($fn) {
+                    if (!$this->shouldEnqueueAssets) {
+                        return;
+                    }
+
                     $this->pendingAssetOps[] = function () use ($fn, $args) {
                         $fn(...$args);
                     };
@@ -69,6 +74,10 @@ class AssetRegistrar
                         );
                         $this->hookRegistered = true;
                     }
+                };
+            }
+            if (!$this->shouldEnqueueAssets) {
+                return static function (): void {
                 };
             }
             return $fn;
