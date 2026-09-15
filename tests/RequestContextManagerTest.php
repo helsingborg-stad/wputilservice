@@ -37,7 +37,9 @@ class RequestContextManagerTest extends TestCase
     {
         return [
             'normal page load' => [['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/about/'], true],
+            'frontend form submission' => [['REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/contact/'], true],
             'post save' => [['REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/wp-admin/post.php'], false],
+            'admin form handler' => [['REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/wp-admin/admin-post.php'], false],
             'ajax endpoint' => [['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/wp-admin/admin-ajax.php'], false],
             'rest endpoint' => [['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/wp-json/wp/v2/posts'], false],
             'xml-rpc endpoint' => [['REQUEST_METHOD' => 'GET', 'REQUEST_URI' => '/xmlrpc.php'], false],

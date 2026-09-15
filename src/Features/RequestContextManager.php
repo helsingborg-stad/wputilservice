@@ -18,10 +18,9 @@ class RequestContextManager
     public function shouldEnqueueAssets(null|array $server = null): bool
     {
         $server ??= $_SERVER;
-        $requestMethod = strtoupper((string) ($server['REQUEST_METHOD'] ?? ''));
         $requestUri = (string) ($server['REQUEST_URI'] ?? '');
 
-        if ($requestMethod !== '' && !in_array($requestMethod, ['GET', 'HEAD'], true)) {
+        if (str_contains($requestUri, '/wp-admin/')) {
             return false;
         }
 
