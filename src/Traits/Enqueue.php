@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace WpUtilService\Traits;
 
 use WpUtilService\Config\EnqueueManagerConfig;
+use WpUtilService\Exceptions\EnqueueRootConflictException;
 use WpUtilService\Features\CacheBustManager;
 use WpUtilService\Features\Enqueue\EnqueueManager;
 use WpUtilService\Features\RuntimeContextManager;
@@ -14,6 +15,7 @@ trait Enqueue
     use WpServiceTrait;
 
     private null|EnqueueManagerConfig $enqueueManagerConfig = null;
+    private null|string $enqueueRootPath = null;
 
     /**
      * Entrypoint for the enqueue feature.
@@ -36,11 +38,13 @@ trait Enqueue
      *           'id' => 1
      *       ]);
      *
-     * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required ONCE.
+     * @param string $rootDirectory   Absolute path to project root directory, or any path within it. Required on the
+     *                                first call for each WpUtilService instance.
      * @param string $distDirectory   Path to asset distribution folder, relative to project root. Default: '/assets/dist/'.
      * @param string $manifestName    Name of manifest file. Default: 'manifest.json'.
      * @param bool   $cacheBust       Enable cache busting. Default: true.
      * @return \WpUtilService\Features\Enqueue\EnqueueManager Chainable manager for asset operations.
+     * @throws EnqueueRootConflictException When the service is already configured for another theme or plugin.
      */
     public function enqueue(
         null|string $rootDirectory = null,
@@ -49,6 +53,18 @@ trait Enqueue
         bool $cacheBust = true,
     ): EnqueueManager {
         $enqueueManagerConfig = $this->enqueueManagerConfig ??= new EnqueueManagerConfig();
+
+        if ($rootDirectory !== null) {
+            $requestedRootPath = (string) (new RuntimeContextManager())
+                ->setPath($rootDirectory)
+                ->getNormalizedRootPath();
+
+            if ($this->enqueueRootPath !== null && $requestedRootPath !== $this->enqueueRootPath) {
+                throw new EnqueueRootConflictException($this->enqueueRootPath, $requestedRootPath);
+            }
+
+            $this->enqueueRootPath = $requestedRootPath;
+        }
 
         // Apply provided config overrides
         if ($rootDirectory !== null) {
@@ -64,7 +80,7 @@ trait Enqueue
 
         //Setup runtime context
         $runtimeContext = (new RuntimeContextManager())->setPath($enqueueManagerConfig->getRootDirectory());
-        $rootPath = $runtimeContext->getNormalizedRootPath();
+        $rootPath = $this->enqueueRootPath ??= $runtimeContext->getNormalizedRootPath();
 
         // Setup cache bust manager, if enabled
         $cacheBustManager = null;
