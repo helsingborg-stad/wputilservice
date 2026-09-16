@@ -16,7 +16,7 @@ class CacheBustManager
      * Storage var for the dist path and manifest name
      */
     private string $manifestName = 'manifest.json';
-    private null|string $manifestPath = '';
+    private null|string $manifestPath = null;
 
     /**
      * Set the manifest name.
@@ -64,24 +64,22 @@ class CacheBustManager
     public function getManifest(): null|array
     {
         $cacheKey = 'wputilservice-rev-manifest-' . md5($this->getManifestFilePath());
+        $cachedManifest = $this->getWpService()->wpCacheGet($cacheKey);
 
-        if ($this->getWpService()->wpCacheGet($cacheKey) !== false) {
-            $revManifest = $this->getWpService()->wpCacheGet($cacheKey);
-            return $revManifest;
+        if (is_array($cachedManifest)) {
+            return $cachedManifest;
         }
 
         $revManifestPath = $this->getManifestFilePath();
-        if (file_exists($revManifestPath)) {
-            $revManifest = json_decode(file_get_contents($revManifestPath), true);
-            if (is_array($revManifest)) {
-                $this->getWpService()->wpCacheSet($cacheKey, $revManifest);
-                return $revManifest;
-            }
+        $contents = is_file($revManifestPath) ? file_get_contents($revManifestPath) : false;
+        $manifest = $contents !== false ? json_decode($contents, true) : null;
+
+        if (is_array($manifest)) {
+            $this->getWpService()->wpCacheSet($cacheKey, $manifest);
+            return $manifest;
         }
 
         throw new \RuntimeException("Failed to retrieve the manifest file. Expected at: {$revManifestPath}");
-
-        return $revManifest ?: null;
     }
 
     /**

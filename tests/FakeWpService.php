@@ -8,6 +8,7 @@ use WpService\WpService;
 class FakeWpService extends BaseFakeWpService
 {
     private array $callLog = [];
+    private array $cache = [];
     public array $registeredScripts = [];
     public array $enqueuedScripts = [];
     public array $localizedScripts = [];
@@ -52,12 +53,27 @@ class FakeWpService extends BaseFakeWpService
         return !empty($this->callLog[$method]);
     }
 
-    /**
-     * Return the number of times a WordPress action has fired.
-     *
-     * @param string $hookName
-     * @return int
-     */
+    public function wpCacheGet(
+        int|string $key,
+        string $group = '',
+        bool $force = false,
+        bool &$found = null,
+    ): mixed {
+        $this->logCall('wpCacheGet', func_get_args());
+        $cacheKey = $group . ':' . $key;
+        $found = array_key_exists($cacheKey, $this->cache);
+
+        return $found ? $this->cache[$cacheKey] : false;
+    }
+
+    public function wpCacheSet(int|string $key, mixed $data, string $group = '', int $expire = 0): bool
+    {
+        $this->logCall('wpCacheSet', func_get_args());
+        $this->cache[$group . ':' . $key] = $data;
+
+        return true;
+    }
+
     public function didAction(string $hookName): int
     {
         $this->logCall('didAction', func_get_args());

@@ -10,23 +10,23 @@ use WpUtilService\Config\EnqueueManagerConfigInterface as I;
  */
 class EnqueueManagerConfig implements I
 {
-    protected static bool $cacheBust = true;
-    protected static string $distDirectory = '/assets/dist/';
-    protected static string $manifestName = 'manifest.json';
-    protected static null|string $rootDirectory = null;
+    protected bool $cacheBust = true;
+    protected string $distDirectory = '/assets/dist/';
+    protected string $manifestName = 'manifest.json';
+    protected null|string $rootDirectory = null;
 
     /**
      * Set cache busting state.
      */
     public function setCacheBustState(bool $cacheBust): I
     {
-        self::$cacheBust = $cacheBust;
+        $this->cacheBust = $cacheBust;
         return $this;
     }
 
     public function setRootDirectory(string $rootDirectory): I
     {
-        self::$rootDirectory = $rootDirectory;
+        $this->rootDirectory = $rootDirectory;
         return $this;
     }
 
@@ -35,7 +35,7 @@ class EnqueueManagerConfig implements I
      */
     public function setDistDirectory(string $distDirectory): I
     {
-        self::$distDirectory = $distDirectory;
+        $this->distDirectory = $distDirectory;
         return $this;
     }
 
@@ -44,7 +44,7 @@ class EnqueueManagerConfig implements I
      */
     public function setManifestName(string $manifestName): I
     {
-        self::$manifestName = $manifestName;
+        $this->manifestName = $manifestName;
         return $this;
     }
 
@@ -53,7 +53,7 @@ class EnqueueManagerConfig implements I
      */
     public function getIsCacheBustEnabled(): bool
     {
-        return self::$cacheBust;
+        return $this->cacheBust;
     }
 
     /**
@@ -61,12 +61,12 @@ class EnqueueManagerConfig implements I
      */
     public function getRootDirectory(): null|string
     {
-        if (is_null(self::$rootDirectory)) {
+        if (is_null($this->rootDirectory)) {
             throw new \RuntimeException(
                 'Root directory is not set. Please provide it using setRootDirectory() method.',
             );
         }
-        return self::$rootDirectory;
+        return $this->rootDirectory;
     }
 
     /**
@@ -74,7 +74,7 @@ class EnqueueManagerConfig implements I
      */
     public function getDistDirectory(): string
     {
-        return self::$distDirectory;
+        return $this->distDirectory;
     }
 
     /**
@@ -82,6 +82,6 @@ class EnqueueManagerConfig implements I
      */
     public function getManifestName(): string
     {
-        return self::$manifestName;
+        return $this->manifestName;
     }
 }
