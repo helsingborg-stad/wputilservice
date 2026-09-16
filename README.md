@@ -45,8 +45,8 @@ $wpUtilService = new WpUtilService($wpService);
 - `with()` may be chained with data or translation functions. 
 - `and()` is a synonym to `with()` but cannot be called before `with()`.
 - You can chain multiple add calls fluently. There are no need to call multiple enqueue. 
-- The first `enqueue()` call configures its `WpUtilService` instance. Later calls on that instance reuse the same root, distribution directory, and manifest name.
-- Use a separate `WpUtilService` instance for each theme or plugin. Passing a different theme or plugin root to an already configured instance throws an `EnqueueRootConflictException` with instructions for resolving the conflict.
+- Enqueue configuration is scoped to each normalized theme or plugin root, so one `WpUtilService` instance can safely serve multiple consumers.
+- Calling `enqueue()` without a root reuses the most recently selected root and its distribution directory and manifest name.
 
 #### Example 1
 ```php

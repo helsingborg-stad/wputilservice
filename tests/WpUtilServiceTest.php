@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace WpUtilService\Tests;
 
 use PHPUnit\Framework\TestCase;
-use WpUtilService\Exceptions\EnqueueRootConflictException;
 use WpUtilService\WpUtilService;
 
 class WpUtilServiceTest extends TestCase
@@ -50,7 +49,7 @@ class WpUtilServiceTest extends TestCase
         );
     }
 
-    public function testSwitchingRootsOnTheSameServiceThrowsHelpfulException(): void
+    public function testConfigurationsAreIsolatedByRootOnTheSameService(): void
     {
         $wpService = new FakeWpService(new HandlingFakeWpService());
         $service = new WpUtilService($wpService);
@@ -60,25 +59,23 @@ class WpUtilServiceTest extends TestCase
             cacheBust: false,
         );
 
-        try {
-            $service->enqueue('/var/www/wp-content/mu-plugins/acf-openstreetmap-field', cacheBust: false);
-            $this->fail('Expected a root conflict exception.');
-        } catch (EnqueueRootConflictException $exception) {
-            $this->assertStringContainsString(
-                '/var/www/wp-content/themes/municipio/',
-                $exception->getMessage(),
-            );
-            $this->assertStringContainsString(
-                '/var/www/wp-content/mu-plugins/acf-openstreetmap-field/',
-                $exception->getMessage(),
-            );
-            $this->assertStringContainsString('Create a separate WpUtilService instance', $exception->getMessage());
-        }
+        $service
+            ->enqueue('/var/www/wp-content/mu-plugins/acf-openstreetmap-field', cacheBust: false)
+            ->add('mu-plugin.css');
 
-        $service->enqueue(cacheBust: false)->add('main.css');
+        $service
+            ->enqueue('/var/www/wp-content/themes/municipio', cacheBust: false)
+            ->add('theme.css');
 
         $registeredStyles = $wpService->getCallLog('wpRegisterStyle');
-        $this->assertSame('path/to/template/Modularity/assets/dist/main.css', $registeredStyles[0][1] ?? null);
+        $this->assertSame(
+            'https://test.test/wp-content/mu-plugins/acf-openstreetmap-field/assets/dist/mu-plugin.css',
+            $registeredStyles[0][1] ?? null,
+        );
+        $this->assertSame(
+            'path/to/template/Modularity/assets/dist/theme.css',
+            $registeredStyles[1][1] ?? null,
+        );
     }
 
     public function testNestedPathsWithinTheSameRootDoNotConflict(): void
