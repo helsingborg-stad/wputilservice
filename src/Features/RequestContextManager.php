@@ -31,10 +31,6 @@ class RequestContextManager
         $server ??= $_SERVER;
         $requestUri = (string) ($server['REQUEST_URI'] ?? '');
 
-        if (str_contains($requestUri, '/wp-admin/') || $this->wpService->didAction('save_post') > 0) {
-            return false;
-        }
-
         if (defined('DOING_AJAX') && DOING_AJAX) {
             return false;
         }
