@@ -74,6 +74,14 @@ class FakeWpService extends BaseFakeWpService
         return true;
     }
 
+    public function didAction(string $hookName): int
+    {
+        $this->logCall('didAction', func_get_args());
+        $didAction = $this->methods['didAction'] ?? null;
+
+        return is_callable($didAction) ? (int) $didAction($hookName) : 0;
+    }
+
     public function wpRegisterScript(
         string $handle,
         string|false $src,
