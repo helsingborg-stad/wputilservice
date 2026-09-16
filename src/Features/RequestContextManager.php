@@ -4,11 +4,22 @@ declare(strict_types=1);
 
 namespace WpUtilService\Features;
 
+use WpService\WpService;
+
 /**
  * Determines whether the current request can load frontend assets.
  */
 class RequestContextManager
 {
+    /**
+     * Create a request context manager.
+     *
+     * @param WpService $wpService WordPress service used to inspect executed actions.
+     */
+    public function __construct(
+        private WpService $wpService,
+    ) {}
+
     /**
      * Determine whether asset operations should run for the current request.
      *
@@ -20,7 +31,7 @@ class RequestContextManager
         $server ??= $_SERVER;
         $requestUri = (string) ($server['REQUEST_URI'] ?? '');
 
-        if (str_contains($requestUri, '/wp-admin/')) {
+        if (str_contains($requestUri, '/wp-admin/') || $this->wpService->didAction('save_post') > 0) {
             return false;
         }
 

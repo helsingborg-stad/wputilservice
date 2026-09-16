@@ -73,7 +73,7 @@ class EnqueueManager implements EnqueueManagerInterface
         null|RequestContextManager $requestContextManager = null,
     ) {
         $this->config = $config;
-        $this->shouldEnqueueAssets = ($requestContextManager ?? new RequestContextManager())->shouldEnqueueAssets();
+        $this->shouldEnqueueAssets = ($requestContextManager ?? new RequestContextManager($wpService))->shouldEnqueueAssets();
 
         // Initialize support classes
         $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
