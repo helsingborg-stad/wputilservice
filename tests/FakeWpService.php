@@ -52,6 +52,20 @@ class FakeWpService extends BaseFakeWpService
         return !empty($this->callLog[$method]);
     }
 
+    /**
+     * Return the number of times a WordPress action has fired.
+     *
+     * @param string $hookName
+     * @return int
+     */
+    public function didAction(string $hookName): int
+    {
+        $this->logCall('didAction', func_get_args());
+        $didAction = $this->methods['didAction'] ?? null;
+
+        return is_callable($didAction) ? (int) $didAction($hookName) : 0;
+    }
+
     public function wpRegisterScript(
         string $handle,
         string|false $src,

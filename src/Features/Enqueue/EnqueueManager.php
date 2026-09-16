@@ -6,6 +6,7 @@ namespace WpUtilService\Features\Enqueue;
 
 use WpService\WpService;
 use WpUtilService\Features\CacheBustManager;
+use WpUtilService\Features\RequestContextManager;
 use WpUtilService\Features\RuntimeContextEnum;
 
 /**
@@ -54,6 +55,11 @@ class EnqueueManager implements EnqueueManagerInterface
     private ScriptAttributeManager $scriptAttributeManager;
 
     /**
+     * Whether this request can load assets.
+     */
+    private bool $shouldEnqueueAssets;
+
+    /**
      * Constructor.
      *
      * @param WpService $wpService
@@ -64,12 +70,14 @@ class EnqueueManager implements EnqueueManagerInterface
         private WpService $wpService,
         private null|CacheBustManager $cacheBustManager = null,
         array $config = [],
+        null|RequestContextManager $requestContextManager = null,
     ) {
         $this->config = $config;
+        $this->shouldEnqueueAssets = ($requestContextManager ?? new RequestContextManager($wpService))->shouldEnqueueAssets();
 
         // Initialize support classes
         $this->assetUrlResolver = new AssetUrlResolver($wpService, $cacheBustManager);
-        $this->assetRegistrar = new AssetRegistrar($wpService);
+        $this->assetRegistrar = new AssetRegistrar($wpService, $this->shouldEnqueueAssets);
         $this->assetLocalization = new AssetLocalization($this->assetRegistrar);
         $this->assetData = new AssetData($this->assetRegistrar);
         $this->scriptAttributeManager = new ScriptAttributeManager($wpService);
@@ -257,6 +265,10 @@ class EnqueueManager implements EnqueueManagerInterface
      */
     private function addAsset(string $handle, string $src, array $deps = [], null|bool $module = null): void
     {
+        if (!$this->shouldEnqueueAssets) {
+            return;
+        }
+
         $this->validateAddAssetParams($handle, $src);
 
         $fileType = $this->assetRegistrar->getFileType($src, $handle);
