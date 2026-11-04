@@ -100,4 +100,17 @@ class WpUtilServiceTest extends TestCase
             $registeredStyles[0][1] ?? null,
         );
     }
+
+    public function testCacheBustedAssetMustExistInManifest(): void
+    {
+        $service = new WpUtilService(new FakeWpService(new HandlingFakeWpService()));
+        $enqueue = $service->enqueue(
+            __DIR__ . '/fixtures/wp-content/mu-plugins/acf-openstreetmap-field',
+        );
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage("Asset 'missing.css' is missing from the manifest.");
+
+        $enqueue->add('missing.css');
+    }
 }

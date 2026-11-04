@@ -92,6 +92,7 @@ class CacheBustManager
         if (isset($manifest[$name])) {
             return $manifest[$name];
         }
-        return $name;
+
+        throw new \RuntimeException("Asset '{$name}' is missing from the manifest.");
     }
 }
