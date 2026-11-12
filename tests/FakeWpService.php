@@ -57,7 +57,7 @@ class FakeWpService extends BaseFakeWpService
         int|string $key,
         string $group = '',
         bool $force = false,
-        bool &$found = null,
+        bool|null &$found = null,
     ): mixed {
         $this->logCall('wpCacheGet', func_get_args());
         $cacheKey = $group . ':' . $key;
